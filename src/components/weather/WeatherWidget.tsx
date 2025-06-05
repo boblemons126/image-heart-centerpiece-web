@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { RefreshCw, Palette } from 'lucide-react';
 import { useWeatherData } from '../../hooks/useWeatherData';
@@ -155,8 +154,8 @@ const WeatherWidget = () => {
             />
           </div>
           <div className="flex items-center space-x-2">
-            {/* Only show color picker if dynamic coloring is disabled */}
-            {!weatherSettings.useDynamicColoring && (
+            {/* Only show color picker if dynamic coloring is enabled */}
+            {weatherSettings.useDynamicColoring && (
               <Popover open={colorPickerOpen} onOpenChange={setColorPickerOpen}>
                 <PopoverTrigger asChild>
                   <button className="p-2 hover:bg-white/20 rounded-lg transition-colors" title="Change background color">
