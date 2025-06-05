@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { MapPin, Thermometer, Wind, Cloud, RefreshCw, Palette, Check } from 'lucide-react';
+import { MapPin, Thermometer, Wind, Cloud, RefreshCw, Palette, Check, Sun, Droplets } from 'lucide-react';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -83,6 +83,75 @@ const WeatherSettings: React.FC<WeatherSettingsProps> = ({ onSettingsChange }) =
     const hex = hslToHex(hue, saturation, lightness);
     updateConfig({ customBackgroundColor: hex });
   };
+
+  // Weather widget preview component
+  const WeatherWidgetPreview = ({ color }: { color: string }) => (
+    <div 
+      className="relative rounded-xl p-4 text-white shadow-lg overflow-hidden"
+      style={{
+        background: `linear-gradient(135deg, ${color}, ${color}dd, ${color}bb)`,
+        boxShadow: `0 0 30px ${color}66, 0 0 60px ${color}33`
+      }}
+    >
+      {/* Background decoration */}
+      <div className="absolute inset-0 bg-black/10"></div>
+      <div className="absolute -top-6 -right-6 w-20 h-20 bg-white/5 rounded-full"></div>
+      <div className="absolute -bottom-6 -left-6 w-16 h-16 bg-white/5 rounded-full"></div>
+      
+      <div className="relative z-10">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-start space-x-1">
+            <MapPin className="w-3 h-3 mt-0.5" />
+            <div>
+              <div className="font-semibold text-sm">London</div>
+              <div className="text-xs opacity-70">England</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Current weather */}
+        <div className="flex items-center space-x-3 mb-4">
+          <Sun className="w-10 h-10" />
+          <div>
+            <div className="text-2xl font-bold">22°</div>
+            <div className="text-xs opacity-80">Sunny</div>
+            <div className="text-xs opacity-70">Feels like 24°</div>
+          </div>
+        </div>
+
+        {/* Weather details */}
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          <div className="bg-white/15 backdrop-blur-sm rounded-lg p-2 text-center">
+            <Droplets className="w-3 h-3 mx-auto mb-1" />
+            <div className="text-xs opacity-80">Humidity</div>
+            <div className="font-semibold text-sm">65%</div>
+          </div>
+          <div className="bg-white/15 backdrop-blur-sm rounded-lg p-2 text-center">
+            <Wind className="w-3 h-3 mx-auto mb-1" />
+            <div className="text-xs opacity-80">Wind</div>
+            <div className="font-semibold text-sm">12 mph</div>
+          </div>
+          <div className="bg-white/15 backdrop-blur-sm rounded-lg p-2 text-center">
+            <Sun className="w-3 h-3 mx-auto mb-1" />
+            <div className="text-xs opacity-80">Sunset</div>
+            <div className="font-semibold text-sm">6:30 PM</div>
+          </div>
+        </div>
+
+        {/* Mini forecast */}
+        <div className="flex space-x-2">
+          {[1, 2, 3, 4].map((_, index) => (
+            <div key={index} className="bg-white/15 backdrop-blur-sm rounded-lg p-1.5 text-center min-w-0 flex-1">
+              <div className="text-xs opacity-80">{12 + index}:00</div>
+              <Sun className="w-3 h-3 mx-auto my-1" />
+              <div className="text-xs font-semibold">{22 + index}°</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -204,27 +273,9 @@ const WeatherSettings: React.FC<WeatherSettingsProps> = ({ onSettingsChange }) =
                                 className="[&_[role=slider]]:bg-white [&_[role=slider]]:border-2 [&_[role=slider]]:border-white/50 [&>.relative>div:first-child]:bg-white [&>.relative>div:last-child]:bg-transparent"
                               />
                             </div>
-                            <div className="relative">
-                              <div 
-                                className="absolute -inset-4 rounded-xl blur-xl transition-colors duration-200 opacity-50"
-                                style={{
-                                  backgroundColor: hslToHex(hue, saturation, lightness)
-                                }}
-                              />
-                              <div className="relative">
-                                <div 
-                                  className="h-20 rounded-lg shadow-lg border-2 transition-colors duration-200"
-                                  style={{
-                                    backgroundColor: hslToHex(hue, saturation, lightness),
-                                    borderColor: `${hslToHex(hue, saturation, lightness)}33`
-                                  }}
-                                >
-                                  <div className="absolute inset-0 rounded-lg bg-gradient-to-b from-white/5 to-transparent" />
-                                </div>
-                                <div className="absolute bottom-2 left-2 text-xs font-mono text-white/70 bg-black/20 px-2 py-1 rounded-md backdrop-blur-sm">
-                                  {hslToHex(hue, saturation, lightness).toUpperCase()}
-                                </div>
-                              </div>
+                            <div className="space-y-2">
+                              <Label className="text-white block font-medium">Weather Widget Preview</Label>
+                              <WeatherWidgetPreview color={hslToHex(hue, saturation, lightness)} />
                             </div>
                           </div>
                         </TabsContent>
@@ -271,6 +322,10 @@ const WeatherSettings: React.FC<WeatherSettingsProps> = ({ onSettingsChange }) =
                                   </div>
                                 </Button>
                               ))}
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-white block font-medium">Weather Widget Preview</Label>
+                              <WeatherWidgetPreview color={config.customBackgroundColor ?? '#1e3a8a'} />
                             </div>
                           </div>
                         </TabsContent>
