@@ -4,14 +4,6 @@ import { Widget } from '../types';
 export function useDragAndDrop(initialWidgets: Widget[]) {
   const [widgets, setWidgets] = useState<Widget[]>(initialWidgets);
 
-  const moveWidget = useCallback((widgetId: string, position: { x: number; y: number }) => {
-    setWidgets(prev => prev.map(widget => 
-      widget.id === widgetId 
-        ? { ...widget, position }
-        : widget
-    ));
-  }, []);
-
   const addWidget = useCallback((widget: Widget) => {
     setWidgets(prev => [...prev, widget]);
   }, []);
@@ -28,11 +20,23 @@ export function useDragAndDrop(initialWidgets: Widget[]) {
     ));
   }, []);
 
+  const duplicateWidget = useCallback((widgetId: string) => {
+    const widget = widgets.find(w => w.id === widgetId);
+    if (widget) {
+      const newWidget: Widget = {
+        ...widget,
+        id: `widget-${Date.now()}`,
+      };
+      addWidget(newWidget);
+    }
+  }, [widgets, addWidget]);
+
   return {
     widgets,
-    moveWidget,
+    setWidgets,
     addWidget,
     removeWidget,
     updateWidget,
+    duplicateWidget,
   };
 }

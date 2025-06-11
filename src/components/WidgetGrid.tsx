@@ -1,7 +1,23 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+} from '@dnd-kit/sortable';
+
 import { useDevices } from '../hooks/useDevices';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
+import { useEditMode } from './EditMode/EditModeProvider';
 import { Widget } from '../types';
 import { LightWidget } from './widgets/LightWidget';
 import { ThermostatWidget } from './widgets/ThermostatWidget';
@@ -9,13 +25,14 @@ import { SecurityWidget } from './widgets/SecurityWidget';
 import { CameraWidget } from './widgets/CameraWidget';
 import { LockWidget } from './widgets/LockWidget';
 import { SensorWidget } from './widgets/SensorWidget';
+import { WidgetCustomizer } from './EditMode/WidgetCustomizer';
+import { SortableWidget } from './EditMode/SortableWidget';
 
 const initialWidgets: Widget[] = [
   {
     id: 'widget-1',
     deviceId: 'device-1',
     type: 'light',
-    position: { x: 0, y: 0 },
     size: 'medium',
     customization: { theme: 'auto', color: '#3B82F6', showLabel: true, showStatus: true },
   },
@@ -23,7 +40,6 @@ const initialWidgets: Widget[] = [
     id: 'widget-2',
     deviceId: 'device-2',
     type: 'thermostat',
-    position: { x: 1, y: 0 },
     size: 'large',
     customization: { theme: 'auto', color: '#14B8A6', showLabel: true, showStatus: true },
   },
@@ -31,7 +47,6 @@ const initialWidgets: Widget[] = [
     id: 'widget-3',
     deviceId: 'device-3',
     type: 'light',
-    position: { x: 2, y: 0 },
     size: 'medium',
     customization: { theme: 'auto', color: '#F97316', showLabel: true, showStatus: true },
   },
@@ -39,7 +54,6 @@ const initialWidgets: Widget[] = [
     id: 'widget-4',
     deviceId: 'device-4',
     type: 'camera',
-    position: { x: 0, y: 1 },
     size: 'large',
     customization: { theme: 'auto', color: '#8B5CF6', showLabel: true, showStatus: true },
   },
@@ -47,7 +61,6 @@ const initialWidgets: Widget[] = [
     id: 'widget-5',
     deviceId: 'device-6',
     type: 'lock',
-    position: { x: 2, y: 1 },
     size: 'medium',
     customization: { theme: 'auto', color: '#EF4444', showLabel: true, showStatus: true },
   },
@@ -55,7 +68,6 @@ const initialWidgets: Widget[] = [
     id: 'widget-6',
     deviceId: 'device-8',
     type: 'sensor',
-    position: { x: 0, y: 2 },
     size: 'small',
     customization: { theme: 'auto', color: '#10B981', showLabel: true, showStatus: true },
   },
@@ -63,7 +75,18 @@ const initialWidgets: Widget[] = [
 
 export function WidgetGrid() {
   const { devices, loading, toggleDevice, updateDevice } = useDevices();
-  const { widgets, moveWidget, updateWidget } = useDragAndDrop(initialWidgets);
+  const { widgets, setWidgets, updateWidget, addWidget, duplicateWidget } = useDragAndDrop(initialWidgets);
+  const { isEditMode, selectedWidget, setSelectedWidget } = useEditMode();
+  const [customizerWidget, setCustomizerWidget] = useState<Widget | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  console.log('WidgetGrid render, widgets count:', widgets.length);
 
   if (loading) {
     return (
@@ -78,6 +101,25 @@ export function WidgetGrid() {
     );
   }
 
+  const handleWidgetSelect = (widgetId: string) => {
+    if (isEditMode) {
+      setSelectedWidget(widgetId);
+      const widget = widgets.find(w => w.id === widgetId);
+      setCustomizerWidget(widget || null);
+    }
+  };
+
+  const handleDuplicateWidget = (widgetId: string) => {
+    const widget = widgets.find(w => w.id === widgetId);
+    if (widget) {
+      const newWidget: Widget = {
+        ...widget,
+        id: `widget-${Date.now()}`,
+      };
+      addWidget(newWidget);
+    }
+  };
+
   const renderWidget = (widget: Widget) => {
     const device = devices.find(d => d.id === widget.deviceId);
     if (!device) return null;
@@ -90,22 +132,31 @@ export function WidgetGrid() {
       onUpdate: (updates: any) => updateDevice(device.id, updates),
     };
 
+    let WidgetComponent;
     switch (widget.type) {
       case 'light':
-        return <LightWidget {...commonProps} />;
+        WidgetComponent = LightWidget;
+        break;
       case 'thermostat':
-        return <ThermostatWidget {...commonProps} />;
+        WidgetComponent = ThermostatWidget;
+        break;
       case 'security':
-        return <SecurityWidget {...commonProps} />;
+        WidgetComponent = SecurityWidget;
+        break;
       case 'camera':
-        return <CameraWidget {...commonProps} />;
+        WidgetComponent = CameraWidget;
+        break;
       case 'lock':
-        return <LockWidget {...commonProps} />;
+        WidgetComponent = LockWidget;
+        break;
       case 'sensor':
-        return <SensorWidget {...commonProps} />;
+        WidgetComponent = SensorWidget;
+        break;
       default:
         return null;
     }
+
+    return <WidgetComponent {...commonProps} />;
   };
 
   const getGridSpan = (size: Widget['size']) => {
@@ -121,34 +172,66 @@ export function WidgetGrid() {
     }
   };
 
+  function handleDragEnd(event: DragEndEvent) {
+    const {active, over} = event;
+    
+    if (over && active.id !== over.id) {
+      setWidgets((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+        
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-min">
-      {widgets.map((widget, index) => (
-        <motion.div
-          key={widget.id}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3, delay: index * 0.1 }}
-          className={getGridSpan(widget.size)}
-        >
-          {renderWidget(widget)}
-        </motion.div>
-      ))}
-      
-      {/* Add Widget Placeholder */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3, delay: widgets.length * 0.1 }}
-        className="h-48 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-2xl flex items-center justify-center hover:border-blue-400 dark:hover:border-blue-500 transition-colors cursor-pointer"
+    <div className="relative">
+      <DndContext 
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
       >
-        <div className="text-center">
-          <div className="w-12 h-12 bg-gray-200 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-3">
-            <span className="text-2xl text-gray-400 dark:text-slate-500">+</span>
+        <SortableContext items={widgets.map(w => w.id)}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-min">
+            <AnimatePresence mode="popLayout">
+              {widgets.map((widget) => {
+                console.log('Rendering widget:', widget.id);
+                return (
+                  <motion.div
+                    key={widget.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.2 }}
+                    className={getGridSpan(widget.size)}
+                  >
+                    <SortableWidget 
+                      key={widget.id}
+                      widget={widget} 
+                      onSelect={handleWidgetSelect}
+                    >
+                      {renderWidget(widget)}
+                    </SortableWidget>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </div>
-          <p className="text-gray-500 dark:text-slate-400 font-medium">Add Widget</p>
-        </div>
-      </motion.div>
+        </SortableContext>
+      </DndContext>
+
+      <WidgetCustomizer
+        widget={customizerWidget}
+        device={customizerWidget ? devices.find(d => d.id === customizerWidget.deviceId) || null : null}
+        onUpdateWidget={updateWidget}
+        onDuplicateWidget={handleDuplicateWidget}
+        onClose={() => {
+          setCustomizerWidget(null);
+          setSelectedWidget(null);
+        }}
+      />
     </div>
   );
 }

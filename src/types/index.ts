@@ -16,7 +16,8 @@ export type DeviceType =
   | 'sensor' 
   | 'switch' 
   | 'camera' 
-  | 'lock';
+  | 'lock'
+  | 'weather';
 
 export type DeviceStatus = 'online' | 'offline' | 'error';
 
@@ -24,7 +25,6 @@ export interface Widget {
   id: string;
   deviceId: string;
   type: WidgetType;
-  position: { x: number; y: number };
   size: WidgetSize;
   customization: WidgetCustomization;
 }
