@@ -16,7 +16,7 @@ import {
 } from '@dnd-kit/sortable';
 
 import { useDevices } from '../hooks/useDevices';
-import { useDragAndDrop } from '../hooks/useDragAndDrop';
+import { useDashboard } from '../contexts/DashboardContext';
 import { useEditMode } from './EditMode/EditModeProvider';
 import { Widget } from '../types';
 import { LightWidget } from './widgets/LightWidget';
@@ -28,54 +28,16 @@ import { SensorWidget } from './widgets/SensorWidget';
 import { WidgetCustomizer } from './EditMode/WidgetCustomizer';
 import { SortableWidget } from './EditMode/SortableWidget';
 
-const initialWidgets: Widget[] = [
-  {
-    id: 'widget-1',
-    deviceId: 'device-1',
-    type: 'light',
-    size: 'medium',
-    customization: { theme: 'auto', color: '#3B82F6', showLabel: true, showStatus: true },
-  },
-  {
-    id: 'widget-2',
-    deviceId: 'device-2',
-    type: 'thermostat',
-    size: 'large',
-    customization: { theme: 'auto', color: '#14B8A6', showLabel: true, showStatus: true },
-  },
-  {
-    id: 'widget-3',
-    deviceId: 'device-3',
-    type: 'light',
-    size: 'medium',
-    customization: { theme: 'auto', color: '#F97316', showLabel: true, showStatus: true },
-  },
-  {
-    id: 'widget-4',
-    deviceId: 'device-4',
-    type: 'camera',
-    size: 'large',
-    customization: { theme: 'auto', color: '#8B5CF6', showLabel: true, showStatus: true },
-  },
-  {
-    id: 'widget-5',
-    deviceId: 'device-6',
-    type: 'lock',
-    size: 'medium',
-    customization: { theme: 'auto', color: '#EF4444', showLabel: true, showStatus: true },
-  },
-  {
-    id: 'widget-6',
-    deviceId: 'device-8',
-    type: 'sensor',
-    size: 'small',
-    customization: { theme: 'auto', color: '#10B981', showLabel: true, showStatus: true },
-  },
-];
-
 export function WidgetGrid() {
   const { devices, loading, toggleDevice, updateDevice } = useDevices();
-  const { widgets, setWidgets, updateWidget, addWidget, duplicateWidget } = useDragAndDrop(initialWidgets);
+  const { 
+    widgets, 
+    updateWidgets, 
+    updateWidget, 
+    addWidget, 
+    duplicateWidget,
+    removeWidget
+  } = useDashboard();
   const { isEditMode, selectedWidget, setSelectedWidget } = useEditMode();
   const [customizerWidget, setCustomizerWidget] = useState<Widget | null>(null);
 
@@ -176,12 +138,9 @@ export function WidgetGrid() {
     const {active, over} = event;
     
     if (over && active.id !== over.id) {
-      setWidgets((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
-        
-        return arrayMove(items, oldIndex, newIndex);
-      });
+      const oldIndex = widgets.findIndex((item) => item.id === active.id);
+      const newIndex = widgets.findIndex((item) => item.id === over.id);
+      updateWidgets(arrayMove(widgets, oldIndex, newIndex));
     }
   }
 
@@ -211,6 +170,7 @@ export function WidgetGrid() {
                       key={widget.id}
                       widget={widget} 
                       onSelect={handleWidgetSelect}
+                      onRemove={removeWidget}
                     >
                       {renderWidget(widget)}
                     </SortableWidget>
@@ -226,7 +186,7 @@ export function WidgetGrid() {
         widget={customizerWidget}
         device={customizerWidget ? devices.find(d => d.id === customizerWidget.deviceId) || null : null}
         onUpdateWidget={updateWidget}
-        onDuplicateWidget={handleDuplicateWidget}
+        onDuplicateWidget={duplicateWidget}
         onClose={() => {
           setCustomizerWidget(null);
           setSelectedWidget(null);
