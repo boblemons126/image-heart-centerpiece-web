@@ -1,7 +1,6 @@
-
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Lightbulb, Thermometer, Shield, Camera, Lock, Activity, Search, X, Grid3X3 } from 'lucide-react';
+import { ChevronDown, Lightbulb, Thermometer, Shield, Camera, Lock, Activity, Search, X, Plus } from 'lucide-react';
 import { useDraggable } from '@dnd-kit/core';
 
 interface WidgetTemplate {
@@ -108,43 +107,43 @@ function DraggableWidget({ template }: DraggableWidgetProps) {
         relative p-4 rounded-xl border-2 cursor-grab active:cursor-grabbing
         bg-gradient-to-br ${template.bgGradient}
         backdrop-blur-sm transition-all duration-200
-        hover:scale-[1.02] hover:shadow-md
-        ${isDragging ? 'opacity-70 scale-105 shadow-xl rotate-3' : ''}
+        hover:scale-[1.02] hover:shadow-lg
+        ${isDragging ? 'opacity-70 scale-105 shadow-xl rotate-2' : ''}
         group select-none
       `}
-      whileHover={{ y: -1 }}
+      whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
     >
       <div className="flex items-center gap-3">
-        <div className={`p-2 rounded-lg bg-white/70 ${template.color}`}>
+        <div className={`p-2.5 rounded-xl bg-white/80 shadow-sm ${template.color}`}>
           <IconComponent className="w-5 h-5" />
         </div>
         <div className="flex-1 min-w-0">
-          <h4 className="font-semibold text-gray-800 text-sm">
+          <h4 className="font-semibold text-gray-800 text-sm leading-tight">
             {template.name}
           </h4>
-          <p className="text-xs text-gray-600 mt-0.5">
+          <p className="text-xs text-gray-600 mt-0.5 leading-tight">
             {template.description}
           </p>
         </div>
       </div>
       
-      {/* Drag indicator dots */}
+      {/* Drag indicator */}
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="flex flex-col gap-0.5">
-          <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-          <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-          <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+        <div className="flex space-x-0.5">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="w-1 h-1 bg-gray-400 rounded-full"></div>
+          ))}
         </div>
       </div>
 
       {/* Drag helper text */}
       {isDragging && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/90 rounded-xl">
-          <span className="text-xs font-medium text-gray-600">Drop on dashboard</span>
+        <div className="absolute inset-0 flex items-center justify-center bg-white/95 rounded-xl border-2 border-dashed border-blue-400">
+          <span className="text-xs font-semibold text-blue-600">Drop on dashboard</span>
         </div>
       )}
     </motion.div>
@@ -152,11 +151,10 @@ function DraggableWidget({ template }: DraggableWidgetProps) {
 }
 
 interface WidgetLibraryProps {
-  // onSelectWidget prop is kept for interface compatibility but not used in the drag system
+  onSelectWidget: (template: any) => void;
 }
 
-export function WidgetLibrary({}: WidgetLibraryProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function WidgetLibrary({ onSelectWidget }: WidgetLibraryProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
@@ -171,119 +169,96 @@ export function WidgetLibrary({}: WidgetLibraryProps) {
 
   return (
     <div className="space-y-4">
-      {/* Library Toggle Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 bg-white/10 hover:bg-white/20 rounded-xl border border-white/20 transition-all duration-200 group"
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-500/20 rounded-lg group-hover:bg-blue-500/30 transition-colors">
-            <Grid3X3 className="w-5 h-5 text-blue-400" />
-          </div>
-          <div className="text-left">
-            <span className="text-white font-semibold text-sm">Add Widgets</span>
-            <p className="text-slate-300 text-xs">Drag widgets to your dashboard</p>
-          </div>
-        </div>
-        <motion.div
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          <ChevronDown className="w-4 h-4 text-slate-400" />
-        </motion.div>
-      </button>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="overflow-hidden"
+      {/* Search Bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Search widgets..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-sm"
+        />
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery('')}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 space-y-4">
-              {/* Search Bar */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Search widgets..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-10 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-sm"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-
-              {/* Category Pills */}
-              <div className="flex flex-wrap gap-2">
-                {categories.map(category => (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
-                      selectedCategory === category
-                        ? 'bg-blue-500/30 text-blue-200 border border-blue-400/50'
-                        : 'bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white border border-transparent'
-                    }`}
-                  >
-                    {category}
-                  </button>
-                ))}
-              </div>
-
-              {/* Results Count */}
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">
-                  {filteredWidgets.length} widget{filteredWidgets.length !== 1 ? 's' : ''}
-                </span>
-                <span className="text-slate-500 flex items-center gap-1">
-                  <span className="w-1 h-1 bg-slate-500 rounded-full"></span>
-                  Drag to add
-                </span>
-              </div>
-
-              {/* Widget Grid */}
-              <div className="grid grid-cols-1 gap-3 max-h-72 overflow-y-auto pr-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20">
-                <AnimatePresence mode="popLayout">
-                  {filteredWidgets.map((template, index) => (
-                    <motion.div
-                      key={template.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ delay: index * 0.03 }}
-                    >
-                      <DraggableWidget template={template} />
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-
-              {/* Empty State */}
-              {filteredWidgets.length === 0 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-8 text-slate-400"
-                >
-                  <Search className="w-8 h-8 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm font-medium">No widgets found</p>
-                  <p className="text-xs mt-1">Try different keywords or clear your search</p>
-                </motion.div>
-              )}
-            </div>
-          </motion.div>
+            <X className="w-4 h-4" />
+          </button>
         )}
-      </AnimatePresence>
+      </div>
+
+      {/* Category Pills */}
+      <div className="flex flex-wrap gap-2">
+        {categories.map(category => (
+          <button
+            key={category}
+            onClick={() => setSelectedCategory(category)}
+            className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
+              selectedCategory === category
+                ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
+                : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-gray-200'
+            }`}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
+      {/* Results Count */}
+      <div className="flex items-center justify-between text-xs">
+        <span className="text-gray-500 dark:text-gray-400">
+          {filteredWidgets.length} widget{filteredWidgets.length !== 1 ? 's' : ''} available
+        </span>
+        <span className="text-gray-400 dark:text-gray-500 flex items-center gap-1">
+          <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+          Drag to add
+        </span>
+      </div>
+
+      {/* Widget Grid */}
+      <div className="space-y-3 max-h-80 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 dark:scrollbar-thumb-slate-600">
+        <AnimatePresence mode="popLayout">
+          {filteredWidgets.map((template, index) => (
+            <motion.div
+              key={template.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <DraggableWidget template={template} />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {/* Empty State */}
+      {filteredWidgets.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center py-12"
+        >
+          <div className="w-16 h-16 bg-gray-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Search className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="font-medium text-gray-900 dark:text-white mb-2">No widgets found</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            Try adjusting your search or browse different categories
+          </p>
+          <button
+            onClick={() => {
+              setSearchQuery('');
+              setSelectedCategory('All');
+            }}
+            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+          >
+            Clear filters
+          </button>
+        </motion.div>
+      )}
     </div>
   );
 }
