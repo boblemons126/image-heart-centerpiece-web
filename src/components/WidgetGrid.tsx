@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -147,6 +146,7 @@ export function WidgetGrid() {
     
     if (!over) return;
 
+    // Handle widget template drops
     if (active.data.current?.type === 'widget-template') {
       const template = active.data.current.template;
       const newWidget = {
@@ -169,6 +169,7 @@ export function WidgetGrid() {
       return;
     }
 
+    // Handle widget reordering
     if (over && active.id !== over.id) {
       const oldIndex = widgets.findIndex((item) => item.id === active.id);
       const newIndex = widgets.findIndex((item) => item.id === over.id);
@@ -192,7 +193,7 @@ export function WidgetGrid() {
                 Edit Mode Active
               </h3>
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                Drag widgets from the floating menu to add them, or rearrange existing widgets.
+                Use the panel on the right to add widgets, or drag existing widgets to rearrange them.
               </p>
             </div>
             <div className="text-sm text-blue-600 dark:text-blue-400">
