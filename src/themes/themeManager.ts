@@ -179,6 +179,15 @@ export const applyTheme = (theme: Theme): void => {
     root.style.setProperty(`--theme-${key}`, value);
   });
   
+  // Apply Tailwind-compatible color variables
+  root.style.setProperty('--background', theme.colors.background);
+  root.style.setProperty('--foreground', theme.colors.text);
+  root.style.setProperty('--primary', theme.colors.primary);
+  root.style.setProperty('--secondary', theme.colors.secondary);
+  root.style.setProperty('--accent', theme.colors.accent);
+  root.style.setProperty('--border', theme.colors.border);
+  root.style.setProperty('--surface', theme.colors.surface);
+  
   // Apply additional CSS variables if provided
   if (theme.cssVariables) {
     Object.entries(theme.cssVariables).forEach(([key, value]) => {
@@ -187,15 +196,17 @@ export const applyTheme = (theme: Theme): void => {
   }
   
   // Update the document class for dark/light themes
-  root.classList.remove('dark', 'light');
-  if (theme.id === 'dark' || theme.colors.background === '#0f172a') {
-    root.classList.add('dark');
-  } else {
-    root.classList.add('light');
-  }
+  root.classList.remove('dark', 'light', 'ocean', 'sunset', 'forest', 'purple', 'rose');
+  root.classList.add(theme.id);
+  
+  // Apply theme-specific body styling
+  document.body.style.backgroundColor = theme.colors.background;
+  document.body.style.color = theme.colors.text;
   
   // Store the selected theme in localStorage
   localStorage.setItem('selected-theme', theme.id);
+  
+  console.log(`Applied theme: ${theme.name}`, theme.colors);
 };
 
 export const initializeTheme = (): void => {

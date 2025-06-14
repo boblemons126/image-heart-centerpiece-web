@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -81,69 +82,101 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
       style={{ pointerEvents: 'auto' }}
     >
       {/* Header - Draggable Area */}
-      <div className={`bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 rounded-t-2xl shadow-2xl ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-200/50 dark:border-slate-700/50">
+      <div 
+        className={`backdrop-blur-xl border border-opacity-50 rounded-t-2xl shadow-2xl ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        style={{ 
+          backgroundColor: 'var(--theme-surface)', 
+          borderColor: 'var(--theme-border)',
+          color: 'var(--theme-text)'
+        }}
+      >
+        <div 
+          className="flex items-center justify-between p-4 border-b border-opacity-50"
+          style={{ borderColor: 'var(--theme-border)' }}
+        >
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
+            <div 
+              className="p-2 rounded-xl"
+              style={{ background: `linear-gradient(135deg, var(--theme-primary), var(--theme-accent))` }}
+            >
               <Layout className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 dark:text-white text-lg">
+              <h3 
+                className="font-bold text-lg"
+                style={{ color: 'var(--theme-text)' }}
+              >
                 Dashboard Editor
               </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p 
+                className="text-xs"
+                style={{ color: 'var(--theme-textSecondary)' }}
+              >
                 Customize your smart home
               </p>
             </div>
           </div>
           
           <div className="flex items-center space-x-2">
-            <div className="p-1 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-grab active:cursor-grabbing">
-              <GripVertical className="w-4 h-4 text-gray-400" />
+            <div 
+              className="p-1 hover:opacity-70 rounded-lg transition-all cursor-grab active:cursor-grabbing"
+              style={{ backgroundColor: 'var(--theme-background)' }}
+            >
+              <GripVertical 
+                className="w-4 h-4"
+                style={{ color: 'var(--theme-textSecondary)' }}
+              />
             </div>
             <button
               onClick={() => setIsMinimized(!isMinimized)}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-              style={{ pointerEvents: 'auto' }}
+              className="p-2 hover:opacity-70 rounded-lg transition-all"
+              style={{ backgroundColor: 'var(--theme-background)' }}
             >
               <ChevronRight 
-                className={`w-4 h-4 text-gray-500 transition-transform ${
+                className={`w-4 h-4 transition-transform ${
                   isMinimized ? 'rotate-180' : 'rotate-90'
-                }`} 
+                }`}
+                style={{ color: 'var(--theme-textSecondary)' }}
               />
             </button>
             <button
               onClick={() => setEditMode(false)}
-              className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors group"
-              style={{ pointerEvents: 'auto' }}
+              className="p-2 hover:bg-red-500/20 rounded-lg transition-all group"
+              style={{ backgroundColor: 'var(--theme-background)' }}
             >
-              <X className="w-4 h-4 text-gray-500 group-hover:text-red-600" />
+              <X 
+                className="w-4 h-4 group-hover:text-red-500 transition-colors"
+                style={{ color: 'var(--theme-textSecondary)' }}
+              />
             </button>
           </div>
         </div>
 
         {/* Tabs */}
         {!isMinimized && (
-          <div className="flex border-b border-gray-200/50 dark:border-slate-700/50">
+          <div 
+            className="flex border-b border-opacity-50"
+            style={{ borderColor: 'var(--theme-border)' }}
+          >
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 text-sm font-medium transition-all relative ${
-                    activeTab === tab.id
-                      ? 'text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-800/50'
-                  }`}
-                  style={{ pointerEvents: 'auto' }}
+                  className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 text-sm font-medium transition-all relative hover:opacity-80`}
+                  style={{ 
+                    color: activeTab === tab.id ? 'var(--theme-primary)' : 'var(--theme-textSecondary)',
+                    backgroundColor: activeTab === tab.id ? 'var(--theme-background)' : 'transparent'
+                  }}
                 >
                   <Icon className="w-4 h-4" />
                   <span>{tab.label}</span>
                   {activeTab === tab.id && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400"
+                      className="absolute bottom-0 left-0 right-0 h-0.5"
+                      style={{ backgroundColor: 'var(--theme-primary)' }}
                     />
                   )}
                 </button>
@@ -162,15 +195,25 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-x border-gray-200/50 dark:border-slate-700/50 flex-1 overflow-hidden"
-            style={{ pointerEvents: 'auto' }}
+            className="backdrop-blur-xl border-x border-opacity-50 flex-1 overflow-hidden"
+            style={{ 
+              backgroundColor: 'var(--theme-surface)', 
+              borderColor: 'var(--theme-border)',
+              pointerEvents: 'auto'
+            }}
           >
             <div className="p-4 h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 dark:scrollbar-thumb-slate-600">
               {activeTab === 'widgets' && (
                 <div className="space-y-4">
                   <div className="flex items-center space-x-2 mb-4">
-                    <Sparkles className="w-5 h-5 text-purple-500" />
-                    <h4 className="font-semibold text-gray-900 dark:text-white">
+                    <Sparkles 
+                      className="w-5 h-5"
+                      style={{ color: 'var(--theme-accent)' }}
+                    />
+                    <h4 
+                      className="font-semibold"
+                      style={{ color: 'var(--theme-text)' }}
+                    >
                       Add Widgets
                     </h4>
                   </div>
@@ -181,58 +224,121 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
               {activeTab === 'settings' && (
                 <div className="space-y-4">
                   <div className="flex items-center space-x-2 mb-4">
-                    <Palette className="w-5 h-5 text-green-500" />
-                    <h4 className="font-semibold text-gray-900 dark:text-white">
+                    <Palette 
+                      className="w-5 h-5"
+                      style={{ color: 'var(--theme-primary)' }}
+                    />
+                    <h4 
+                      className="font-semibold"
+                      style={{ color: 'var(--theme-text)' }}
+                    >
                       Dashboard Settings
                     </h4>
                   </div>
                   
                   <div className="space-y-3">
-                    <div className="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200/50 dark:border-slate-700/50">
-                      <h5 className="font-medium text-gray-900 dark:text-white mb-2">
+                    <div 
+                      className="p-4 rounded-xl border border-opacity-50"
+                      style={{ 
+                        backgroundColor: 'var(--theme-background)', 
+                        borderColor: 'var(--theme-border)'
+                      }}
+                    >
+                      <h5 
+                        className="font-medium mb-2"
+                        style={{ color: 'var(--theme-text)' }}
+                      >
                         Grid Layout
                       </h5>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      <p 
+                        className="text-sm mb-3"
+                        style={{ color: 'var(--theme-textSecondary)' }}
+                      >
                         Adjust the grid size and spacing
                       </p>
                       <div className="grid grid-cols-2 gap-2">
-                        <button className="p-2 bg-white dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-600 text-sm hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
+                        <button 
+                          className="p-2 rounded-lg border text-sm hover:opacity-80 transition-all"
+                          style={{ 
+                            backgroundColor: 'var(--theme-surface)', 
+                            borderColor: 'var(--theme-border)',
+                            color: 'var(--theme-text)'
+                          }}
+                        >
                           Compact
                         </button>
-                        <button className="p-2 bg-blue-500 text-white rounded-lg text-sm">
+                        <button 
+                          className="p-2 rounded-lg text-sm text-white"
+                          style={{ backgroundColor: 'var(--theme-primary)' }}
+                        >
                           Default
                         </button>
                       </div>
                     </div>
 
-                    <div className="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200/50 dark:border-slate-700/50">
-                      <h5 className="font-medium text-gray-900 dark:text-white mb-2">
+                    <div 
+                      className="p-4 rounded-xl border border-opacity-50"
+                      style={{ 
+                        backgroundColor: 'var(--theme-background)', 
+                        borderColor: 'var(--theme-border)'
+                      }}
+                    >
+                      <h5 
+                        className="font-medium mb-2"
+                        style={{ color: 'var(--theme-text)' }}
+                      >
                         Theme
                       </h5>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      <p 
+                        className="text-sm mb-3"
+                        style={{ color: 'var(--theme-textSecondary)' }}
+                      >
                         Choose your dashboard appearance
                       </p>
                       <Select value={selectedTheme} onValueChange={handleThemeChange}>
-                        <SelectTrigger className="w-full bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600">
+                        <SelectTrigger 
+                          className="w-full border z-50"
+                          style={{ 
+                            backgroundColor: 'var(--theme-surface)', 
+                            borderColor: 'var(--theme-border)',
+                            color: 'var(--theme-text)'
+                          }}
+                        >
                           <SelectValue placeholder="Select a theme" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 z-50">
+                        <SelectContent 
+                          className="border z-50"
+                          style={{ 
+                            backgroundColor: 'var(--theme-surface)', 
+                            borderColor: 'var(--theme-border)'
+                          }}
+                        >
                           {availableThemes.map((theme) => (
                             <SelectItem 
                               key={theme.id} 
                               value={theme.id}
-                              className="hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700"
+                              className="hover:opacity-80 focus:opacity-80"
+                              style={{ color: 'var(--theme-text)' }}
                             >
                               <div className="flex items-center space-x-3">
                                 <div 
-                                  className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600"
-                                  style={{ backgroundColor: theme.colors.primary }}
+                                  className="w-4 h-4 rounded-full border border-opacity-50"
+                                  style={{ 
+                                    backgroundColor: theme.colors.primary,
+                                    borderColor: 'var(--theme-border)'
+                                  }}
                                 />
                                 <div className="flex flex-col">
-                                  <span className="font-medium text-gray-900 dark:text-white">
+                                  <span 
+                                    className="font-medium"
+                                    style={{ color: 'var(--theme-text)' }}
+                                  >
                                     {theme.name}
                                   </span>
-                                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  <span 
+                                    className="text-xs"
+                                    style={{ color: 'var(--theme-textSecondary)' }}
+                                  >
                                     {theme.description}
                                   </span>
                                 </div>
@@ -243,31 +349,54 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
                       </Select>
                       
                       {/* Theme Preview */}
-                      <div className="mt-3 p-3 rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Preview:</p>
+                      <div 
+                        className="mt-3 p-3 rounded-lg border border-opacity-50"
+                        style={{ 
+                          backgroundColor: 'var(--theme-surface)', 
+                          borderColor: 'var(--theme-border)'
+                        }}
+                      >
+                        <p 
+                          className="text-xs mb-2"
+                          style={{ color: 'var(--theme-textSecondary)' }}
+                        >
+                          Preview:
+                        </p>
                         <div className="flex space-x-2">
                           {(() => {
                             const currentTheme = getThemeById(selectedTheme);
                             return currentTheme ? (
                               <>
                                 <div 
-                                  className="w-6 h-6 rounded border border-gray-300"
-                                  style={{ backgroundColor: currentTheme.colors.primary }}
+                                  className="w-6 h-6 rounded border border-opacity-30"
+                                  style={{ 
+                                    backgroundColor: currentTheme.colors.primary,
+                                    borderColor: 'var(--theme-border)'
+                                  }}
                                   title="Primary"
                                 />
                                 <div 
-                                  className="w-6 h-6 rounded border border-gray-300"
-                                  style={{ backgroundColor: currentTheme.colors.secondary }}
+                                  className="w-6 h-6 rounded border border-opacity-30"
+                                  style={{ 
+                                    backgroundColor: currentTheme.colors.secondary,
+                                    borderColor: 'var(--theme-border)'
+                                  }}
                                   title="Secondary"
                                 />
                                 <div 
-                                  className="w-6 h-6 rounded border border-gray-300"
-                                  style={{ backgroundColor: currentTheme.colors.accent }}
+                                  className="w-6 h-6 rounded border border-opacity-30"
+                                  style={{ 
+                                    backgroundColor: currentTheme.colors.accent,
+                                    borderColor: 'var(--theme-border)'
+                                  }}
                                   title="Accent"
                                 />
                                 <div 
-                                  className="w-6 h-6 rounded border border-gray-300"
-                                  style={{ backgroundColor: currentTheme.colors.background }}
+                                  className="w-6 h-6 rounded border border-opacity-30"
+                                  style={{ 
+                                    backgroundColor: currentTheme.colors.background,
+                                    borderColor: 'var(--theme-border)'
+                                  }}
                                   title="Background"
                                 />
                               </>
@@ -283,8 +412,14 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
               {activeTab === 'help' && (
                 <div className="space-y-4">
                   <div className="flex items-center space-x-2 mb-4">
-                    <Info className="w-5 h-5 text-blue-500" />
-                    <h4 className="font-semibold text-gray-900 dark:text-white">
+                    <Info 
+                      className="w-5 h-5"
+                      style={{ color: 'var(--theme-accent)' }}
+                    />
+                    <h4 
+                      className="font-semibold"
+                      style={{ color: 'var(--theme-text)' }}
+                    >
                       How to Use
                     </h4>
                   </div>
@@ -298,11 +433,20 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
 
       {/* Footer */}
       {!isMinimized && (
-        <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 rounded-b-2xl shadow-2xl p-4">
+        <div 
+          className="backdrop-blur-xl border border-opacity-50 rounded-b-2xl shadow-2xl p-4"
+          style={{ 
+            backgroundColor: 'var(--theme-surface)', 
+            borderColor: 'var(--theme-border)'
+          }}
+        >
           <button
             onClick={() => setEditMode(false)}
-            className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-            style={{ pointerEvents: 'auto' }}
+            className="w-full py-3 text-white rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+            style={{ 
+              background: `linear-gradient(135deg, var(--theme-primary), var(--theme-accent))`,
+              pointerEvents: 'auto'
+            }}
           >
             <Save className="w-4 h-4" />
             <span>Save & Exit</span>

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { motion } from 'framer-motion';
@@ -16,7 +16,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <EditModeProvider>
       <DndProvider backend={HTML5Backend}>
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+        <div 
+          className="min-h-screen transition-all duration-300"
+          style={{ 
+            background: `linear-gradient(135deg, var(--theme-background) 0%, var(--theme-surface) 50%, var(--theme-background) 100%)`,
+          }}
+        >
           <Header />
           <EditModeOverlay />
           
@@ -31,10 +36,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 className="max-w-7xl mx-auto"
               >
                 <div className="mb-8">
-                  <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                  <h1 
+                    className="text-4xl font-bold mb-2"
+                    style={{ color: 'var(--theme-text)' }}
+                  >
                     Smart Home Dashboard
                   </h1>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p style={{ color: 'var(--theme-textSecondary)' }}>
                     Control and monitor all your smart devices from one place
                   </p>
                 </div>
