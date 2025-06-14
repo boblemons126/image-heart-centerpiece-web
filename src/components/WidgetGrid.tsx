@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -8,7 +9,6 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
-  DragOverEvent,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -30,7 +30,6 @@ import { WidgetCustomizer } from './EditMode/WidgetCustomizer';
 import { SortableWidget } from './EditMode/SortableWidget';
 import { DropZone } from './EditMode/components/DropZone';
 import { toast } from 'sonner';
-import { Plus } from 'lucide-react';
 
 export function WidgetGrid() {
   const { devices, loading, toggleDevice, updateDevice } = useDevices();
@@ -81,12 +80,10 @@ export function WidgetGrid() {
     const widget = widgets.find(w => w.id === widgetId);
     removeWidget(widgetId);
     
-    // Show success toast
     toast.success(`${widget?.type || 'Widget'} deleted successfully`, {
       description: 'The widget has been removed from your dashboard.',
     });
 
-    // Clear selection if the deleted widget was selected
     if (selectedWidget === widgetId) {
       setSelectedWidget(null);
       setCustomizerWidget(null);
@@ -150,12 +147,11 @@ export function WidgetGrid() {
     
     if (!over) return;
 
-    // Handle dropping widget template from library
     if (active.data.current?.type === 'widget-template') {
       const template = active.data.current.template;
       const newWidget = {
         id: `widget-${Date.now()}`,
-        deviceId: `device-${Math.floor(Math.random() * 8) + 1}`, // Random device for demo
+        deviceId: `device-${Math.floor(Math.random() * 8) + 1}`,
         type: template.type as any,
         size: 'medium' as const,
         customization: {
@@ -173,7 +169,6 @@ export function WidgetGrid() {
       return;
     }
 
-    // Handle reordering existing widgets
     if (over && active.id !== over.id) {
       const oldIndex = widgets.findIndex((item) => item.id === active.id);
       const newIndex = widgets.findIndex((item) => item.id === over.id);
@@ -189,7 +184,6 @@ export function WidgetGrid() {
 
   return (
     <div className="relative">
-      {/* Edit Mode Indicator */}
       {isEditMode && (
         <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
           <div className="flex items-center justify-between">

@@ -17,7 +17,7 @@ export function EditModeOverlay() {
     // Create a new widget instance with a unique ID
     const newWidget = {
       id: `widget-${Date.now()}`,
-      deviceId: `device-${Math.floor(Math.random() * 8) + 1}`, // Random device for demo
+      deviceId: `device-${Math.floor(Math.random() * 8) + 1}`,
       type: template.type as any,
       size: 'medium' as const,
       customization: {
@@ -35,25 +35,24 @@ export function EditModeOverlay() {
     <AnimatePresence>
       <DraggableMenu>
         <div className="space-y-6">
-          <div className="text-center">
-            <h3 className="text-xl font-bold text-white mb-2">Customize Dashboard</h3>
-            <p className="text-sm text-slate-300">Add and arrange your smart home widgets</p>
+          <div className="text-center pb-4 border-b border-white/10">
+            <h3 className="text-lg font-bold text-white mb-1">Dashboard Editor</h3>
+            <p className="text-xs text-slate-300">Customize your smart home control center</p>
           </div>
           
-          <div className="border-t border-slate-700 pt-6">
+          <div>
             <WidgetLibrary onSelectWidget={handleWidgetSelect} />
           </div>
           
-          <div className="border-t border-slate-700 pt-6">
-            <h4 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
-              <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
-              How to Edit
+          <div className="pt-4 border-t border-white/10">
+            <h4 className="text-xs font-semibold text-slate-200 mb-3 uppercase tracking-wide">
+              Quick Guide
             </h4>
             <EditInstructions />
           </div>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-slate-700">
+        <div className="mt-6 pt-4 border-t border-white/10">
           <SaveButton onClick={() => setEditMode(false)} />
         </div>
       </DraggableMenu>
