@@ -1,3 +1,4 @@
+
 import { AnimatePresence } from 'framer-motion';
 import { useEditMode } from './EditModeProvider';
 import { DraggableMenu } from './DraggableMenu';
@@ -33,23 +34,26 @@ export function EditModeOverlay() {
   return (
     <AnimatePresence>
       <DraggableMenu>
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="text-center">
-            <h3 className="text-lg font-semibold text-white mb-2">Edit Dashboard</h3>
-            <p className="text-sm text-slate-300">Customize your smart home dashboard</p>
+            <h3 className="text-xl font-bold text-white mb-2">Customize Dashboard</h3>
+            <p className="text-sm text-slate-300">Add and arrange your smart home widgets</p>
           </div>
           
-          <div className="border-t border-slate-700 pt-4">
+          <div className="border-t border-slate-700 pt-6">
             <WidgetLibrary onSelectWidget={handleWidgetSelect} />
           </div>
           
-          <div className="border-t border-slate-700 pt-4">
-            <h4 className="text-sm font-medium text-slate-300 mb-3">Instructions</h4>
+          <div className="border-t border-slate-700 pt-6">
+            <h4 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+              <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+              How to Edit
+            </h4>
             <EditInstructions />
           </div>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-slate-700">
+        <div className="mt-8 pt-6 border-t border-slate-700">
           <SaveButton onClick={() => setEditMode(false)} />
         </div>
       </DraggableMenu>
