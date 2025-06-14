@@ -23,6 +23,10 @@ export default {
           800: '#1e40af',
           900: '#1e3a8a',
         },
+        destructive: {
+          DEFAULT: 'hsl(0, 84.2%, 60.2%)',
+          foreground: 'hsl(210, 4%, 98%)',
+        },
       },
     },
   },
