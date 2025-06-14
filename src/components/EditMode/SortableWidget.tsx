@@ -1,7 +1,8 @@
+
 import React, { useCallback, memo, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { X, Trash2, AlertCircle } from 'lucide-react';
+import { Trash2, AlertCircle } from 'lucide-react';
 import { useEditMode } from './EditModeProvider';
 import { Widget } from '../../types';
 import {

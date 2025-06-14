@@ -25,7 +25,6 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
   const { setEditMode } = useEditMode();
   const [activeTab, setActiveTab] = useState<'widgets' | 'settings' | 'help'>('widgets');
   const [isMinimized, setIsMinimized] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef<HTMLDivElement>(null);
 
