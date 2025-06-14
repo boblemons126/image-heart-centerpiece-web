@@ -1,5 +1,4 @@
-
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
@@ -23,20 +22,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import { getAllThemes, getThemeById, applyTheme } from '../../themes/themeManager';
 
 interface EditModePanelProps {
   onSelectWidget: (template: any) => void;
 }
-
-// Mock data for installed themes - you can replace this with actual theme data later
-const installedThemes = [
-  { id: 'light', name: 'Light Theme', description: 'Clean and bright' },
-  { id: 'dark', name: 'Dark Theme', description: 'Easy on the eyes' },
-  { id: 'auto', name: 'Auto Theme', description: 'Follows system preference' },
-  { id: 'ocean', name: 'Ocean Blue', description: 'Cool blue tones' },
-  { id: 'sunset', name: 'Sunset Orange', description: 'Warm orange gradient' },
-  { id: 'forest', name: 'Forest Green', description: 'Natural green theme' },
-];
 
 export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
   const { setEditMode } = useEditMode();
@@ -46,6 +36,14 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
   const [selectedTheme, setSelectedTheme] = useState('dark');
   const dragRef = useRef<HTMLDivElement>(null);
 
+  const availableThemes = getAllThemes();
+
+  // Load the current theme on component mount
+  useEffect(() => {
+    const savedThemeId = localStorage.getItem('selected-theme') || 'dark';
+    setSelectedTheme(savedThemeId);
+  }, []);
+
   const tabs = [
     { id: 'widgets', label: 'Widgets', icon: Grid3X3 },
     { id: 'settings', label: 'Settings', icon: Settings },
@@ -54,7 +52,10 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
 
   const handleThemeChange = (themeId: string) => {
     setSelectedTheme(themeId);
-    // TODO: Implement actual theme switching logic here
+    const theme = getThemeById(themeId);
+    if (theme) {
+      applyTheme(theme);
+    }
     console.log('Theme changed to:', themeId);
   };
 
@@ -216,24 +217,64 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
                           <SelectValue placeholder="Select a theme" />
                         </SelectTrigger>
                         <SelectContent className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 z-50">
-                          {installedThemes.map((theme) => (
+                          {availableThemes.map((theme) => (
                             <SelectItem 
                               key={theme.id} 
                               value={theme.id}
                               className="hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700"
                             >
-                              <div className="flex flex-col">
-                                <span className="font-medium text-gray-900 dark:text-white">
-                                  {theme.name}
-                                </span>
-                                <span className="text-xs text-gray-500 dark:text-gray-400">
-                                  {theme.description}
-                                </span>
+                              <div className="flex items-center space-x-3">
+                                <div 
+                                  className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600"
+                                  style={{ backgroundColor: theme.colors.primary }}
+                                />
+                                <div className="flex flex-col">
+                                  <span className="font-medium text-gray-900 dark:text-white">
+                                    {theme.name}
+                                  </span>
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                                    {theme.description}
+                                  </span>
+                                </div>
                               </div>
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
+                      
+                      {/* Theme Preview */}
+                      <div className="mt-3 p-3 rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Preview:</p>
+                        <div className="flex space-x-2">
+                          {(() => {
+                            const currentTheme = getThemeById(selectedTheme);
+                            return currentTheme ? (
+                              <>
+                                <div 
+                                  className="w-6 h-6 rounded border border-gray-300"
+                                  style={{ backgroundColor: currentTheme.colors.primary }}
+                                  title="Primary"
+                                />
+                                <div 
+                                  className="w-6 h-6 rounded border border-gray-300"
+                                  style={{ backgroundColor: currentTheme.colors.secondary }}
+                                  title="Secondary"
+                                />
+                                <div 
+                                  className="w-6 h-6 rounded border border-gray-300"
+                                  style={{ backgroundColor: currentTheme.colors.accent }}
+                                  title="Accent"
+                                />
+                                <div 
+                                  className="w-6 h-6 rounded border border-gray-300"
+                                  style={{ backgroundColor: currentTheme.colors.background }}
+                                  title="Background"
+                                />
+                              </>
+                            ) : null;
+                          })()}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
