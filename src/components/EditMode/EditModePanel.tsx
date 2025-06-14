@@ -16,16 +16,34 @@ import {
 import { useEditMode } from './EditModeProvider';
 import { WidgetLibrary } from './components/WidgetLibrary';
 import { EditInstructions } from './components/EditInstructions';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
 
 interface EditModePanelProps {
   onSelectWidget: (template: any) => void;
 }
+
+// Mock data for installed themes - you can replace this with actual theme data later
+const installedThemes = [
+  { id: 'light', name: 'Light Theme', description: 'Clean and bright' },
+  { id: 'dark', name: 'Dark Theme', description: 'Easy on the eyes' },
+  { id: 'auto', name: 'Auto Theme', description: 'Follows system preference' },
+  { id: 'ocean', name: 'Ocean Blue', description: 'Cool blue tones' },
+  { id: 'sunset', name: 'Sunset Orange', description: 'Warm orange gradient' },
+  { id: 'forest', name: 'Forest Green', description: 'Natural green theme' },
+];
 
 export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
   const { setEditMode } = useEditMode();
   const [activeTab, setActiveTab] = useState<'widgets' | 'settings' | 'help'>('widgets');
   const [isMinimized, setIsMinimized] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState('dark');
   const dragRef = useRef<HTMLDivElement>(null);
 
   const tabs = [
@@ -33,6 +51,12 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
     { id: 'settings', label: 'Settings', icon: Settings },
     { id: 'help', label: 'Help', icon: Info },
   ];
+
+  const handleThemeChange = (themeId: string) => {
+    setSelectedTheme(themeId);
+    // TODO: Implement actual theme switching logic here
+    console.log('Theme changed to:', themeId);
+  };
 
   return (
     <motion.div
@@ -187,17 +211,29 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                         Choose your dashboard appearance
                       </p>
-                      <div className="grid grid-cols-3 gap-2">
-                        <button className="p-2 bg-white dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-600 text-xs hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
-                          Light
-                        </button>
-                        <button className="p-2 bg-gray-800 text-white rounded-lg text-xs">
-                          Dark
-                        </button>
-                        <button className="p-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg text-xs">
-                          Auto
-                        </button>
-                      </div>
+                      <Select value={selectedTheme} onValueChange={handleThemeChange}>
+                        <SelectTrigger className="w-full bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600">
+                          <SelectValue placeholder="Select a theme" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 z-50">
+                          {installedThemes.map((theme) => (
+                            <SelectItem 
+                              key={theme.id} 
+                              value={theme.id}
+                              className="hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-gray-100 dark:focus:bg-slate-700"
+                            >
+                              <div className="flex flex-col">
+                                <span className="font-medium text-gray-900 dark:text-white">
+                                  {theme.name}
+                                </span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  {theme.description}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </div>
