@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
@@ -9,7 +10,8 @@ import {
   Palette,
   Layout,
   Sparkles,
-  Info
+  Info,
+  GripVertical
 } from 'lucide-react';
 import { useEditMode } from './EditModeProvider';
 import { WidgetLibrary } from './components/WidgetLibrary';
@@ -23,6 +25,9 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
   const { setEditMode } = useEditMode();
   const [activeTab, setActiveTab] = useState<'widgets' | 'settings' | 'help'>('widgets');
   const [isMinimized, setIsMinimized] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef = useRef<HTMLDivElement>(null);
 
   const tabs = [
     { id: 'widgets', label: 'Widgets', icon: Grid3X3 },
@@ -32,15 +37,27 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
 
   return (
     <motion.div
-      initial={{ x: 400, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
+      ref={dragRef}
+      drag
+      dragMomentum={false}
+      dragElastic={0}
+      dragConstraints={{
+        left: -window.innerWidth / 2,
+        right: window.innerWidth / 2,
+        top: -window.innerHeight / 2,
+        bottom: window.innerHeight / 2,
+      }}
+      onDragStart={() => setIsDragging(true)}
+      onDragEnd={() => setIsDragging(false)}
+      initial={{ x: 0, y: 0, opacity: 0 }}
+      animate={{ x: 0, y: 0, opacity: 1 }}
       exit={{ x: 400, opacity: 0 }}
       transition={{ type: "spring", damping: 25, stiffness: 200 }}
-      className="fixed top-4 right-4 z-50 w-80 max-h-[calc(100vh-2rem)] flex flex-col"
-      style={{ pointerEvents: 'auto' }} // Ensure the panel can receive pointer events
+      className="fixed top-4 right-4 z-50 w-80 max-h-[calc(100vh-2rem)] flex flex-col cursor-move"
+      style={{ pointerEvents: 'auto' }}
     >
-      {/* Header */}
-      <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 rounded-t-2xl shadow-2xl">
+      {/* Header - Draggable Area */}
+      <div className={`bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 rounded-t-2xl shadow-2xl ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200/50 dark:border-slate-700/50">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
@@ -57,9 +74,13 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
           </div>
           
           <div className="flex items-center space-x-2">
+            <div className="p-1 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-grab active:cursor-grabbing">
+              <GripVertical className="w-4 h-4 text-gray-400" />
+            </div>
             <button
               onClick={() => setIsMinimized(!isMinimized)}
               className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              style={{ pointerEvents: 'auto' }}
             >
               <ChevronRight 
                 className={`w-4 h-4 text-gray-500 transition-transform ${
@@ -70,6 +91,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
             <button
               onClick={() => setEditMode(false)}
               className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors group"
+              style={{ pointerEvents: 'auto' }}
             >
               <X className="w-4 h-4 text-gray-500 group-hover:text-red-600" />
             </button>
@@ -90,6 +112,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
                       ? 'text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
                       : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-800/50'
                   }`}
+                  style={{ pointerEvents: 'auto' }}
                 >
                   <Icon className="w-4 h-4" />
                   <span>{tab.label}</span>
@@ -116,6 +139,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
             className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-x border-gray-200/50 dark:border-slate-700/50 flex-1 overflow-hidden"
+            style={{ pointerEvents: 'auto' }}
           >
             <div className="p-4 h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 dark:scrollbar-thumb-slate-600">
               {activeTab === 'widgets' && (
@@ -202,6 +226,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
           <button
             onClick={() => setEditMode(false)}
             className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+            style={{ pointerEvents: 'auto' }}
           >
             <Save className="w-4 h-4" />
             <span>Save & Exit</span>
