@@ -35,8 +35,7 @@ export function WidgetGrid() {
     updateWidgets, 
     updateWidget, 
     addWidget, 
-    duplicateWidget,
-    removeWidget
+    duplicateWidget
   } = useDashboard();
   const { isEditMode, selectedWidget, setSelectedWidget } = useEditMode();
   const [customizerWidget, setCustomizerWidget] = useState<Widget | null>(null);
@@ -170,7 +169,6 @@ export function WidgetGrid() {
                       key={widget.id}
                       widget={widget} 
                       onSelect={handleWidgetSelect}
-                      onRemove={removeWidget}
                     >
                       {renderWidget(widget)}
                     </SortableWidget>
