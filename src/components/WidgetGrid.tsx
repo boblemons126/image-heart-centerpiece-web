@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   DndContext,
@@ -38,7 +39,7 @@ export function WidgetGrid() {
     duplicateWidget,
     removeWidget
   } = useDashboard();
-  const { isEditMode, selectedWidget, setSelectedWidget } = useEditMode();
+  const { isEditMode, setSelectedWidget } = useEditMode();
   const [customizerWidget, setCustomizerWidget] = useState<Widget | null>(null);
 
   const sensors = useSensors(
@@ -74,17 +75,6 @@ export function WidgetGrid() {
   const handleWidgetDelete = (widgetId: string) => {
     console.log('Deleting widget:', widgetId);
     removeWidget(widgetId);
-  };
-
-  const handleDuplicateWidget = (widgetId: string) => {
-    const widget = widgets.find(w => w.id === widgetId);
-    if (widget) {
-      const newWidget: Widget = {
-        ...widget,
-        id: `widget-${Date.now()}`,
-      };
-      addWidget(newWidget);
-    }
   };
 
   const renderWidget = (widget: Widget) => {
