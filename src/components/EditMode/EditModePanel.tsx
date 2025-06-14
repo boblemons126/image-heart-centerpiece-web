@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -62,27 +61,27 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
 
   return (
     <motion.div
-      ref={dragRef}
-      drag
-      dragMomentum={false}
-      dragElastic={0}
-      dragConstraints={{
-        left: -window.innerWidth / 2,
-        right: window.innerWidth / 2,
-        top: -window.innerHeight / 2,
-        bottom: window.innerHeight / 2,
-      }}
-      onDragStart={() => setIsDragging(true)}
-      onDragEnd={() => setIsDragging(false)}
       initial={{ x: 0, y: 0, opacity: 0 }}
       animate={{ x: 0, y: 0, opacity: 1 }}
       exit={{ x: 400, opacity: 0 }}
       transition={{ type: "spring", damping: 25, stiffness: 200 }}
-      className="fixed top-4 right-4 z-50 w-80 max-h-[calc(100vh-2rem)] flex flex-col cursor-move"
+      className="fixed top-4 right-4 z-50 w-80 max-h-[calc(100vh-2rem)] flex flex-col"
       style={{ pointerEvents: 'auto' }}
     >
       {/* Header - Draggable Area */}
-      <div 
+      <motion.div 
+        ref={dragRef}
+        drag
+        dragMomentum={false}
+        dragElastic={0}
+        dragConstraints={{
+          left: -window.innerWidth / 2,
+          right: window.innerWidth / 2,
+          top: -window.innerHeight / 2,
+          bottom: window.innerHeight / 2,
+        }}
+        onDragStart={() => setIsDragging(true)}
+        onDragEnd={() => setIsDragging(false)}
         className={`backdrop-blur-xl border border-opacity-50 rounded-t-2xl shadow-2xl ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         style={{ 
           backgroundColor: 'var(--theme-surface)', 
@@ -184,9 +183,9 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
             })}
           </div>
         )}
-      </div>
+      </motion.div>
 
-      {/* Content */}
+      {/* Content - Not draggable */}
       <AnimatePresence mode="wait">
         {!isMinimized && (
           <motion.div
@@ -431,7 +430,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
         )}
       </AnimatePresence>
 
-      {/* Footer */}
+      {/* Footer - Not draggable */}
       {!isMinimized && (
         <div 
           className="backdrop-blur-xl border border-opacity-50 rounded-b-2xl shadow-2xl p-4"

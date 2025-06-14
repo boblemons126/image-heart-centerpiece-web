@@ -1,12 +1,8 @@
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Settings, X } from 'lucide-react';
-import { useEditMode } from './EditModeProvider';
-import { getAllThemes, getThemeById, applyTheme } from '../../themes/themeManager';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Widget } from '../../types';
-import { Device } from '../../types';
+import { X, Copy, Trash2, Palette, Eye, EyeOff } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Widget, Device } from '../../types';
 
 interface WidgetCustomizerProps {
   widget: Widget | null;
@@ -16,145 +12,252 @@ interface WidgetCustomizerProps {
   onClose: () => void;
 }
 
-export function WidgetCustomizer({ widget, device, onUpdateWidget, onDuplicateWidget, onClose }: WidgetCustomizerProps) {
-  const [selectedTheme, setSelectedTheme] = useState('dark');
-  const availableThemes = getAllThemes();
+export function WidgetCustomizer({ 
+  widget, 
+  device, 
+  onClose 
+}: WidgetCustomizerProps) {
+  const [activeTab, setActiveTab] = useState<'appearance' | 'settings'>('appearance');
 
-  if (!widget) return null;
+  if (!widget || !device) return null;
 
-  const handleThemeChange = (themeId: string) => {
-    setSelectedTheme(themeId);
-    const theme = getThemeById(themeId);
-    if (theme) {
-      applyTheme(theme);
-    }
-    console.log('Theme changed to:', themeId);
-  };
-
-  const data = [
-    { name: 'Jan', uv: 4000, pv: 2400, amt: 2400 },
-    { name: 'Feb', uv: 3000, pv: 1398, amt: 2210 },
-    { name: 'Mar', uv: 2000, pv: 9800, amt: 2290 },
-    { name: 'Apr', uv: 2780, pv: 3908, amt: 2000 },
-    { name: 'May', uv: 1890, pv: 4800, amt: 2181 },
-    { name: 'Jun', uv: 2390, pv: 3800, amt: 2500 },
-    { name: 'Jul', uv: 3490, pv: 4300, amt: 2100 },
+  const tabs = [
+    { id: 'appearance', label: 'Appearance', icon: Palette },
+    { id: 'settings', label: 'Settings', icon: Eye },
   ];
 
   return (
-    <motion.div
-      initial={{ x: 400, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      exit={{ x: 400, opacity: 0 }}
-      transition={{ type: "spring", damping: 25, stiffness: 200 }}
-      className="fixed top-4 right-4 z-50 w-96 max-h-[calc(100vh-2rem)] flex flex-col rounded-2xl shadow-2xl"
-      style={{
-        backgroundColor: 'var(--theme-surface)',
-        borderColor: 'var(--theme-border)',
-        border: '1px solid'
-      }}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--theme-border)' }}>
-        <div className="flex items-center space-x-3">
-          <div className="p-2 rounded-xl" style={{ backgroundColor: 'var(--theme-primary)' }}>
-            <Settings className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h3 className="font-bold text-lg" style={{ color: 'var(--theme-text)' }}>Widget Settings</h3>
-            <p className="text-xs" style={{ color: 'var(--theme-textSecondary)' }}>Customize your widget</p>
-          </div>
-        </div>
-        <button
-          onClick={onClose}
-          className="p-2 hover:bg-red-500/20 rounded-lg transition-all group"
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ y: 20 }}
+          animate={{ y: 0 }}
+          exit={{ y: 20 }}
+          className="w-full max-w-md mx-4 rounded-2xl border shadow-2xl overflow-hidden"
+          style={{ 
+            backgroundColor: 'var(--theme-surface)', 
+            borderColor: 'var(--theme-border)'
+          }}
+          onClick={(e) => e.stopPropagation()}
         >
-          <X className="w-4 h-4 group-hover:text-red-500 transition-colors" style={{ color: 'var(--theme-textSecondary)' }} />
-        </button>
-      </div>
+          {/* Header */}
+          <div 
+            className="flex items-center justify-between p-6 border-b"
+            style={{ borderColor: 'var(--theme-border)' }}
+          >
+            <div>
+              <h3 
+                className="text-lg font-semibold"
+                style={{ color: 'var(--theme-text)' }}
+              >
+                Customize {device.name}
+              </h3>
+              <p 
+                className="text-sm"
+                style={{ color: 'var(--theme-textSecondary)' }}
+              >
+                {widget.type} widget
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg transition-colors hover:opacity-70"
+              style={{ backgroundColor: 'var(--theme-background)' }}
+            >
+              <X 
+                className="w-5 h-5"
+                style={{ color: 'var(--theme-textSecondary)' }}
+              />
+            </button>
+          </div>
 
-      {/* Content */}
-      <div className="p-4 h-full overflow-y-auto">
-        <div className="space-y-6">
-          <div className="space-y-4">
-            <h4 className="font-semibold" style={{ color: 'var(--theme-text)' }}>Theme Selection</h4>
-            <p className="text-sm" style={{ color: 'var(--theme-textSecondary)' }}>Choose your dashboard appearance</p>
-            <div className="grid grid-cols-2 gap-2">
-              {availableThemes.map((theme) => (
+          {/* Tabs */}
+          <div 
+            className="flex border-b"
+            style={{ borderColor: 'var(--theme-border)' }}
+          >
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
                 <button
-                  key={theme.id}
-                  onClick={() => handleThemeChange(theme.id)}
-                  className={`p-3 rounded-lg border transition-all ${
-                    selectedTheme === theme.id ? 'ring-2' : ''
-                  }`}
-                  style={{
-                    backgroundColor: 'var(--theme-background)',
-                    borderColor: 'var(--theme-border)',
-                    color: 'var(--theme-text)',
-                    ringColor: selectedTheme === theme.id ? 'var(--theme-primary)' : 'transparent'
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 text-sm font-medium transition-all relative`}
+                  style={{ 
+                    color: activeTab === tab.id ? 'var(--theme-primary)' : 'var(--theme-textSecondary)',
+                    backgroundColor: activeTab === tab.id ? 'var(--theme-background)' : 'transparent'
                   }}
                 >
-                  <div className="text-sm font-medium">{theme.name}</div>
-                  <div className="text-xs mt-1" style={{ color: 'var(--theme-textSecondary)' }}>{theme.description}</div>
+                  <Icon className="w-4 h-4" />
+                  <span>{tab.label}</span>
+                  {activeTab === tab.id && (
+                    <motion.div
+                      layoutId="activeCustomizerTab"
+                      className="absolute bottom-0 left-0 right-0 h-0.5"
+                      style={{ backgroundColor: 'var(--theme-primary)' }}
+                    />
+                  )}
                 </button>
-              ))}
-            </div>
+              );
+            })}
           </div>
-          
-          <div className="space-y-4">
-            <h4 className="font-semibold" style={{ color: 'var(--theme-text)' }}>Data Configuration</h4>
-            <p className="text-sm" style={{ color: 'var(--theme-textSecondary)' }}>Configure the data source for this widget</p>
-            <ResponsiveContainer width="100%" height={200}>
-              <AreaChart
-                data={data}
-                margin={{
-                  top: 10,
-                  right: 30,
-                  left: 0,
-                  bottom: 0,
+
+          {/* Content */}
+          <div className="p-6 max-h-96 overflow-y-auto">
+            {activeTab === 'appearance' && (
+              <div className="space-y-4">
+                <div>
+                  <label 
+                    className="block text-sm font-medium mb-2"
+                    style={{ color: 'var(--theme-text)' }}
+                  >
+                    Widget Size
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['small', 'medium', 'large'].map((size) => (
+                      <button
+                        key={size}
+                        className={`p-2 rounded-lg text-sm capitalize transition-all border ${
+                          widget.size === size ? 'text-white' : ''
+                        }`}
+                        style={{
+                          backgroundColor: widget.size === size ? 'var(--theme-primary)' : 'var(--theme-background)',
+                          borderColor: 'var(--theme-border)',
+                          color: widget.size === size ? 'white' : 'var(--theme-text)'
+                        }}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label 
+                    className="block text-sm font-medium mb-2"
+                    style={{ color: 'var(--theme-text)' }}
+                  >
+                    Theme Color
+                  </label>
+                  <div className="grid grid-cols-6 gap-2">
+                    {['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899'].map((color) => (
+                      <button
+                        key={color}
+                        className="w-8 h-8 rounded-lg border-2 transition-all"
+                        style={{
+                          backgroundColor: color,
+                          borderColor: widget.customization?.color === color ? 'var(--theme-text)' : 'var(--theme-border)'
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'settings' && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label 
+                      className="text-sm font-medium"
+                      style={{ color: 'var(--theme-text)' }}
+                    >
+                      Show Label
+                    </label>
+                    <p 
+                      className="text-xs"
+                      style={{ color: 'var(--theme-textSecondary)' }}
+                    >
+                      Display widget title
+                    </p>
+                  </div>
+                  <button
+                    className={`w-12 h-6 rounded-full transition-all ${
+                      widget.customization?.showLabel !== false ? 'justify-end' : 'justify-start'
+                    } flex items-center px-1`}
+                    style={{ 
+                      backgroundColor: widget.customization?.showLabel !== false ? 'var(--theme-primary)' : 'var(--theme-border)'
+                    }}
+                  >
+                    <div 
+                      className="w-4 h-4 rounded-full bg-white transition-all"
+                    />
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label 
+                      className="text-sm font-medium"
+                      style={{ color: 'var(--theme-text)' }}
+                    >
+                      Show Status
+                    </label>
+                    <p 
+                      className="text-xs"
+                      style={{ color: 'var(--theme-textSecondary)' }}
+                    >
+                      Display device status
+                    </p>
+                  </div>
+                  <button
+                    className={`w-12 h-6 rounded-full transition-all ${
+                      widget.customization?.showStatus !== false ? 'justify-end' : 'justify-start'
+                    } flex items-center px-1`}
+                    style={{ 
+                      backgroundColor: widget.customization?.showStatus !== false ? 'var(--theme-primary)' : 'var(--theme-border)'
+                    }}
+                  >
+                    <div 
+                      className="w-4 h-4 rounded-full bg-white transition-all"
+                    />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div 
+            className="flex items-center justify-between p-6 border-t"
+            style={{ borderColor: 'var(--theme-border)' }}
+          >
+            <div className="flex items-center space-x-2">
+              <button
+                className="flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-all hover:opacity-70"
+                style={{ 
+                  backgroundColor: 'var(--theme-background)',
+                  color: 'var(--theme-text)'
                 }}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Area type="monotone" dataKey="pv" stroke="#8884d8" fill="#8884d8" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-          
-          <div className="space-y-4">
-            <h4 className="font-semibold" style={{ color: 'var(--theme-text)' }}>Widget Settings</h4>
-            <p className="text-sm" style={{ color: 'var(--theme-textSecondary)' }}>Configure the general settings for this widget</p>
-            <div className="space-y-3">
-              <div>
-                <label className="text-sm font-medium" style={{ color: 'var(--theme-text)' }}>Widget Name</label>
-                <input
-                  type="text"
-                  defaultValue={device?.name || 'Unnamed Widget'}
-                  className="w-full mt-1 px-3 py-2 rounded-lg border transition-all"
-                  style={{
-                    backgroundColor: 'var(--theme-background)',
-                    borderColor: 'var(--theme-border)',
-                    color: 'var(--theme-text)'
-                  }}
-                />
-              </div>
+                <Copy className="w-4 h-4" />
+                <span>Duplicate</span>
+              </button>
+              <button
+                className="flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-all hover:bg-red-500/10 text-red-500"
+                style={{ backgroundColor: 'var(--theme-background)' }}
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Delete</span>
+              </button>
             </div>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90"
+              style={{ backgroundColor: 'var(--theme-primary)' }}
+            >
+              Done
+            </button>
           </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="p-4 border-t" style={{ borderColor: 'var(--theme-border)' }}>
-        <button
-          onClick={onClose}
-          className="w-full py-3 text-white rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-          style={{ background: `linear-gradient(135deg, var(--theme-primary), var(--theme-accent))` }}
-        >
-          <span>Apply Changes</span>
-        </button>
-      </div>
-    </motion.div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
