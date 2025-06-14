@@ -1,4 +1,3 @@
-
 export interface Theme {
   id: string;
   name: string;
@@ -51,70 +50,6 @@ export const builtInThemes: Theme[] = [
     },
   },
   {
-    id: 'auto',
-    name: 'Auto Theme',
-    description: 'Follows system preference',
-    type: 'built-in',
-    colors: {
-      primary: '#3b82f6',
-      secondary: '#f1f5f9',
-      accent: '#0ea5e9',
-      background: '#ffffff',
-      surface: '#f8fafc',
-      text: '#1e293b',
-      textSecondary: '#64748b',
-      border: '#e2e8f0',
-    },
-  },
-  {
-    id: 'ocean',
-    name: 'Ocean Blue',
-    description: 'Cool blue tones',
-    type: 'built-in',
-    colors: {
-      primary: '#0ea5e9',
-      secondary: '#0f172a',
-      accent: '#06b6d4',
-      background: '#0c1626',
-      surface: '#1e293b',
-      text: '#e0f2fe',
-      textSecondary: '#7dd3fc',
-      border: '#0369a1',
-    },
-  },
-  {
-    id: 'sunset',
-    name: 'Sunset Orange',
-    description: 'Warm orange gradient',
-    type: 'built-in',
-    colors: {
-      primary: '#ea580c',
-      secondary: '#1a1a1a',
-      accent: '#f59e0b',
-      background: '#1c1917',
-      surface: '#292524',
-      text: '#fef3c7',
-      textSecondary: '#fbbf24',
-      border: '#ea580c',
-    },
-  },
-  {
-    id: 'forest',
-    name: 'Forest Green',
-    description: 'Natural green theme',
-    type: 'built-in',
-    colors: {
-      primary: '#059669',
-      secondary: '#064e3b',
-      accent: '#10b981',
-      background: '#022c22',
-      surface: '#064e3b',
-      text: '#d1fae5',
-      textSecondary: '#6ee7b7',
-      border: '#047857',
-    },
-  },
-  {
     id: 'purple',
     name: 'Royal Purple',
     description: 'Elegant purple tones',
@@ -128,22 +63,6 @@ export const builtInThemes: Theme[] = [
       text: '#f3e8ff',
       textSecondary: '#c4b5fd',
       border: '#6d28d9',
-    },
-  },
-  {
-    id: 'rose',
-    name: 'Rose Gold',
-    description: 'Warm rose and gold',
-    type: 'built-in',
-    colors: {
-      primary: '#e11d48',
-      secondary: '#4c1d95',
-      accent: '#f59e0b',
-      background: '#1f1827',
-      surface: '#2d1b69',
-      text: '#fdf2f8',
-      textSecondary: '#f9a8d4',
-      border: '#be185d',
     },
   },
 ];

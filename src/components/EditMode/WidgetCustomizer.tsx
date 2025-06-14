@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { X, Copy, Trash2, Palette, Eye, EyeOff } from 'lucide-react';
+import { X, Copy, Trash2, Palette, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Widget, Device } from '../../types';
 
