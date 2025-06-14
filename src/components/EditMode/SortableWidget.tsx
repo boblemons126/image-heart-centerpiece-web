@@ -1,9 +1,20 @@
-import React, { useCallback, memo } from 'react';
+import React, { useCallback, memo, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { X, Trash2 } from 'lucide-react';
 import { useEditMode } from './EditModeProvider';
 import { Widget } from '../../types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../ui/alert-dialog';
+import { Button } from '../ui/button';
 
 interface SortableWidgetProps {
   widget: Widget;
@@ -26,6 +37,7 @@ export const SortableWidget = memo(function SortableWidget({
     transition,
     isDragging,
   } = useSortable({ id: widget.id });
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -48,12 +60,8 @@ export const SortableWidget = memo(function SortableWidget({
   const handleDelete = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    // Add confirmation for better UX
-    if (window.confirm(`Are you sure you want to delete the ${widget.type} widget?`)) {
-      onDelete(widget.id);
-    }
-  }, [widget.id, widget.type, onDelete]);
+    setIsDeleteDialogOpen(true);
+  }, []);
 
   return (
     <div 
@@ -87,6 +95,31 @@ export const SortableWidget = memo(function SortableWidget({
           <Trash2 className="w-4 h-4" />
         </button>
       )}
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the{' '}
+              <strong>{widget.type}</strong> widget from your dashboard.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              asChild
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(widget.id);
+              }}
+            >
+              <Button variant="destructive">Delete</Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Edit Indicator */}
       {isEditMode && isSelected && (
