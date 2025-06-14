@@ -35,7 +35,8 @@ export function WidgetGrid() {
     updateWidgets, 
     updateWidget, 
     addWidget, 
-    duplicateWidget
+    duplicateWidget,
+    removeWidget
   } = useDashboard();
   const { isEditMode, selectedWidget, setSelectedWidget } = useEditMode();
   const [customizerWidget, setCustomizerWidget] = useState<Widget | null>(null);
@@ -47,7 +48,7 @@ export function WidgetGrid() {
     })
   );
 
-  console.log('WidgetGrid render, widgets count:', widgets.length);
+  console.log('WidgetGrid render, widgets count:', widgets.length, 'isEditMode:', isEditMode);
 
   if (loading) {
     return (
@@ -68,6 +69,11 @@ export function WidgetGrid() {
       const widget = widgets.find(w => w.id === widgetId);
       setCustomizerWidget(widget || null);
     }
+  };
+
+  const handleWidgetDelete = (widgetId: string) => {
+    console.log('Deleting widget:', widgetId);
+    removeWidget(widgetId);
   };
 
   const handleDuplicateWidget = (widgetId: string) => {
@@ -169,6 +175,7 @@ export function WidgetGrid() {
                       key={widget.id}
                       widget={widget} 
                       onSelect={handleWidgetSelect}
+                      onDelete={handleWidgetDelete}
                     >
                       {renderWidget(widget)}
                     </SortableWidget>
