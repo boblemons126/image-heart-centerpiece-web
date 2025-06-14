@@ -1,16 +1,16 @@
 import React from 'react';
-import { Move, Trash2, Plus, Settings } from 'lucide-react';
+import { Move, Trash2, Grip, Settings } from 'lucide-react';
 
 export function EditInstructions() {
   return (
     <div className="space-y-3 text-sm text-slate-300">
       <div className="flex items-center gap-2">
-        <Plus className="w-4 h-4 text-blue-400" />
-        <span>Add widgets using the search above</span>
+        <Grip className="w-4 h-4 text-blue-400" />
+        <span>Drag widgets from the library above</span>
       </div>
       <div className="flex items-center gap-2">
         <Move className="w-4 h-4 text-green-400" />
-        <span>Drag widgets to reposition them</span>
+        <span>Drag existing widgets to reposition</span>
       </div>
       <div className="flex items-center gap-2">
         <Settings className="w-4 h-4 text-purple-400" />

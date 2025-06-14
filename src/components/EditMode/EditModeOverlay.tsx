@@ -1,10 +1,9 @@
 import { AnimatePresence } from 'framer-motion';
 import { useEditMode } from './EditModeProvider';
 import { DraggableMenu } from './DraggableMenu';
-import { WidgetSearch } from './components/WidgetSearch';
+import { WidgetLibrary } from './components/WidgetLibrary';
 import { EditInstructions } from './components/EditInstructions';
 import { SaveButton } from './components/SaveButton';
-import { Widget } from './types/widgets';
 import { useDashboard } from '../../contexts/DashboardContext';
 
 export function EditModeOverlay() {
@@ -13,12 +12,12 @@ export function EditModeOverlay() {
 
   if (!isEditMode) return null;
 
-  const handleWidgetSelect = (widget: Widget) => {
+  const handleWidgetSelect = (template: any) => {
     // Create a new widget instance with a unique ID
     const newWidget = {
       id: `widget-${Date.now()}`,
       deviceId: `device-${Math.floor(Math.random() * 8) + 1}`, // Random device for demo
-      type: widget.id as any,
+      type: template.type as any,
       size: 'medium' as const,
       customization: {
         theme: 'auto' as const,
@@ -41,8 +40,7 @@ export function EditModeOverlay() {
           </div>
           
           <div className="border-t border-slate-700 pt-4">
-            <h4 className="text-sm font-medium text-slate-300 mb-3">Add Widgets</h4>
-            <WidgetSearch onSelectWidget={handleWidgetSelect} />
+            <WidgetLibrary onSelectWidget={handleWidgetSelect} />
           </div>
           
           <div className="border-t border-slate-700 pt-4">

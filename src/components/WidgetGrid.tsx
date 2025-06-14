@@ -8,6 +8,7 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragOverEvent,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -27,7 +28,9 @@ import { LockWidget } from './widgets/LockWidget';
 import { SensorWidget } from './widgets/SensorWidget';
 import { WidgetCustomizer } from './EditMode/WidgetCustomizer';
 import { SortableWidget } from './EditMode/SortableWidget';
+import { DropZone } from './EditMode/components/DropZone';
 import { toast } from 'sonner';
+import { Plus } from 'lucide-react';
 
 export function WidgetGrid() {
   const { devices, loading, toggleDevice, updateDevice } = useDevices();
@@ -143,16 +146,44 @@ export function WidgetGrid() {
   };
 
   function handleDragEnd(event: DragEndEvent) {
-    const {active, over} = event;
+    const { active, over } = event;
     
+    if (!over) return;
+
+    // Handle dropping widget template from library
+    if (active.data.current?.type === 'widget-template') {
+      const template = active.data.current.template;
+      const newWidget = {
+        id: `widget-${Date.now()}`,
+        deviceId: `device-${Math.floor(Math.random() * 8) + 1}`, // Random device for demo
+        type: template.type as any,
+        size: 'medium' as const,
+        customization: {
+          theme: 'auto' as const,
+          color: '#3B82F6',
+          showLabel: true,
+          showStatus: true,
+        },
+      };
+      
+      addWidget(newWidget);
+      toast.success(`${template.name} added to dashboard`, {
+        description: 'Your new widget has been added successfully.',
+      });
+      return;
+    }
+
+    // Handle reordering existing widgets
     if (over && active.id !== over.id) {
       const oldIndex = widgets.findIndex((item) => item.id === active.id);
       const newIndex = widgets.findIndex((item) => item.id === over.id);
-      updateWidgets(arrayMove(widgets, oldIndex, newIndex));
       
-      toast.success('Widget position updated', {
-        description: 'Your dashboard layout has been saved.',
-      });
+      if (oldIndex !== -1 && newIndex !== -1) {
+        updateWidgets(arrayMove(widgets, oldIndex, newIndex));
+        toast.success('Widget position updated', {
+          description: 'Your dashboard layout has been saved.',
+        });
+      }
     }
   }
 
@@ -167,7 +198,7 @@ export function WidgetGrid() {
                 Edit Mode Active
               </h3>
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                You can now add, remove, and rearrange widgets on your dashboard.
+                Drag widgets from the floating menu to add them, or rearrange existing widgets.
               </p>
             </div>
             <div className="text-sm text-blue-600 dark:text-blue-400">
@@ -183,49 +214,36 @@ export function WidgetGrid() {
         onDragEnd={handleDragEnd}
       >
         <SortableContext items={widgets.map(w => w.id)}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-min">
-            <AnimatePresence mode="popLayout">
-              {widgets.map((widget) => {
-                return (
-                  <motion.div
-                    key={widget.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                    transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
-                    className={getGridSpan(widget.size)}
-                  >
-                    <SortableWidget 
+          <DropZone id="dashboard-drop-zone" isEmpty={widgets.length === 0 && isEditMode}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-min">
+              <AnimatePresence mode="popLayout">
+                {widgets.map((widget) => {
+                  return (
+                    <motion.div
                       key={widget.id}
-                      widget={widget} 
-                      onSelect={handleWidgetSelect}
-                      onDelete={handleWidgetDelete}
+                      layout
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                      transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
+                      className={getGridSpan(widget.size)}
                     >
-                      {renderWidget(widget)}
-                    </SortableWidget>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
+                      <SortableWidget 
+                        key={widget.id}
+                        widget={widget} 
+                        onSelect={handleWidgetSelect}
+                        onDelete={handleWidgetDelete}
+                      >
+                        {renderWidget(widget)}
+                      </SortableWidget>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
+          </DropZone>
         </SortableContext>
       </DndContext>
-
-      {/* Empty State for Edit Mode */}
-      {isEditMode && widgets.length === 0 && (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
-            <Plus className="w-8 h-8 text-gray-400" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            No widgets yet
-          </h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-4">
-            Add your first widget using the floating menu to get started.
-          </p>
-        </div>
-      )}
 
       <WidgetCustomizer
         widget={customizerWidget}
