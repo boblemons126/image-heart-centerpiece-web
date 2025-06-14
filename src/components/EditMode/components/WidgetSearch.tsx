@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Search } from 'lucide-react';
 
@@ -29,7 +30,7 @@ export function WidgetSearch({ onSearch }: WidgetSearchProps) {
         }}
       />
       <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-        <Search className="w-4 h-4 text-gray-400" />
+        <Search className="w-4 h-4" style={{ color: 'var(--theme-textSecondary)' }} />
       </div>
     </div>
   );

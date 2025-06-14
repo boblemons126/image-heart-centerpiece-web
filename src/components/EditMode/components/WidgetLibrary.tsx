@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -8,11 +9,8 @@ import {
   Shield, 
   Activity, 
   Zap, 
-  Wifi,
-  Search
+  Wifi
 } from 'lucide-react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../../ui/accordion';
-import { AspectRatio } from '../../ui/aspect-ratio';
 import { WidgetSearch } from './WidgetSearch';
 
 interface WidgetTemplate {
@@ -21,6 +19,7 @@ interface WidgetTemplate {
   description: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   category: string;
+  type: string;
   template: React.ReactNode;
 }
 
@@ -31,6 +30,7 @@ const widgetTemplates: WidgetTemplate[] = [
     description: 'Control your smart lights',
     icon: Lightbulb,
     category: 'Control',
+    type: 'light',
     template: (
       <div className="flex items-center space-x-3">
         <Lightbulb className="w-6 h-6 text-yellow-500" />
@@ -44,6 +44,7 @@ const widgetTemplates: WidgetTemplate[] = [
     description: 'Manage your home temperature',
     icon: Thermometer,
     category: 'Control',
+    type: 'thermostat',
     template: (
       <div className="flex items-center space-x-3">
         <Thermometer className="w-6 h-6 text-red-500" />
@@ -57,6 +58,7 @@ const widgetTemplates: WidgetTemplate[] = [
     description: 'View your security camera feed',
     icon: Camera,
     category: 'Security',
+    type: 'camera',
     template: (
       <div className="flex items-center space-x-3">
         <Camera className="w-6 h-6 text-gray-500" />
@@ -70,6 +72,7 @@ const widgetTemplates: WidgetTemplate[] = [
     description: 'Control your smart locks',
     icon: Lock,
     category: 'Security',
+    type: 'lock',
     template: (
       <div className="flex items-center space-x-3">
         <Lock className="w-6 h-6 text-gray-700" />
@@ -83,6 +86,7 @@ const widgetTemplates: WidgetTemplate[] = [
     description: 'Monitor your home security',
     icon: Shield,
     category: 'Security',
+    type: 'security',
     template: (
       <div className="flex items-center space-x-3">
         <Shield className="w-6 h-6 text-blue-500" />
@@ -96,6 +100,7 @@ const widgetTemplates: WidgetTemplate[] = [
     description: 'Detect movement in your home',
     icon: Activity,
     category: 'Sensors',
+    type: 'sensor',
     template: (
       <div className="flex items-center space-x-3">
         <Activity className="w-6 h-6 text-orange-500" />
@@ -109,6 +114,7 @@ const widgetTemplates: WidgetTemplate[] = [
     description: 'Track your energy usage',
     icon: Zap,
     category: 'Utilities',
+    type: 'energy',
     template: (
       <div className="flex items-center space-x-3">
         <Zap className="w-6 h-6 text-yellow-500" />
@@ -122,6 +128,7 @@ const widgetTemplates: WidgetTemplate[] = [
     description: 'Monitor your network connection',
     icon: Wifi,
     category: 'Utilities',
+    type: 'network',
     template: (
       <div className="flex items-center space-x-3">
         <Wifi className="w-6 h-6 text-green-500" />
@@ -132,7 +139,7 @@ const widgetTemplates: WidgetTemplate[] = [
 ];
 
 interface WidgetLibraryProps {
-  onSelectWidget: (template: any) => void;
+  onSelectWidget: (template: WidgetTemplate) => void;
 }
 
 export function WidgetLibrary({ onSelectWidget }: WidgetLibraryProps) {
@@ -140,6 +147,10 @@ export function WidgetLibrary({ onSelectWidget }: WidgetLibraryProps) {
 
   const handleSelect = (template: WidgetTemplate) => {
     onSelectWidget(template);
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchTerm(query);
   };
 
   const filteredWidgets = widgetTemplates.filter(widget =>
@@ -151,7 +162,7 @@ export function WidgetLibrary({ onSelectWidget }: WidgetLibraryProps) {
 
   return (
     <div className="space-y-4">
-      <WidgetSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <WidgetSearch onSearch={handleSearch} />
 
       {searchTerm ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -170,46 +181,42 @@ export function WidgetLibrary({ onSelectWidget }: WidgetLibraryProps) {
               <widget.icon className="w-5 h-5" style={{ color: 'var(--theme-primary)' }} />
               <div>
                 <h4 className="font-medium">{widget.name}</h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{widget.description}</p>
+                <p className="text-sm" style={{ color: 'var(--theme-textSecondary)' }}>{widget.description}</p>
               </div>
             </motion.button>
           ))}
         </div>
       ) : (
-        <Accordion type="single" collapsible>
+        <div className="space-y-4">
           {categoryList.map(category => (
-            <AccordionItem value={category} key={category}>
-              <AccordionTrigger className="font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-                {category}
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                  {widgetTemplates
-                    .filter(widget => widget.category === category)
-                    .map((widget) => (
-                      <motion.button
-                        key={widget.id}
-                        onClick={() => handleSelect(widget)}
-                        className="flex items-center space-x-3 p-4 rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        style={{
-                          backgroundColor: 'var(--theme-background)',
-                          color: 'var(--theme-text)'
-                        }}
-                      >
-                        <widget.icon className="w-5 h-5" style={{ color: 'var(--theme-primary)' }} />
-                        <div>
-                          <h4 className="font-medium">{widget.name}</h4>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{widget.description}</p>
-                        </div>
-                      </motion.button>
-                    ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
+            <div key={category} className="space-y-2">
+              <h3 className="font-medium text-sm" style={{ color: 'var(--theme-text)' }}>{category}</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {widgetTemplates
+                  .filter(widget => widget.category === category)
+                  .map((widget) => (
+                    <motion.button
+                      key={widget.id}
+                      onClick={() => handleSelect(widget)}
+                      className="flex items-center space-x-3 p-4 rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      style={{
+                        backgroundColor: 'var(--theme-background)',
+                        color: 'var(--theme-text)'
+                      }}
+                    >
+                      <widget.icon className="w-5 h-5" style={{ color: 'var(--theme-primary)' }} />
+                      <div>
+                        <h4 className="font-medium">{widget.name}</h4>
+                        <p className="text-sm" style={{ color: 'var(--theme-textSecondary)' }}>{widget.description}</p>
+                      </div>
+                    </motion.button>
+                  ))}
+              </div>
+            </div>
           ))}
-        </Accordion>
+        </div>
       )}
     </div>
   );

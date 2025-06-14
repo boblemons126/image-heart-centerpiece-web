@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -23,7 +24,7 @@ export function Sidebar() {
       initial={{ x: -240 }}
       animate={{ x: isExpanded ? 0 : -240 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 dark:bg-slate-900 dark:border-slate-700 z-40"
+      className="fixed top-0 left-0 h-full w-64 border-r z-40"
       style={{ 
         backgroundColor: 'var(--theme-surface)', 
         borderColor: 'var(--theme-border)',
@@ -31,13 +32,13 @@ export function Sidebar() {
       }}
     >
       {/* Sidebar Header */}
-      <div className="flex items-center justify-between py-4 px-6 border-b border-gray-200 dark:border-slate-700">
+      <div className="flex items-center justify-between py-4 px-6 border-b" style={{ borderColor: 'var(--theme-border)' }}>
         <span className="text-lg font-semibold" style={{ color: 'var(--theme-text)' }}>
           SmartHome
         </span>
         <button 
           onClick={toggleSidebar}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-all"
+          className="p-2 rounded-lg transition-all"
           style={{ backgroundColor: 'var(--theme-background)' }}
         >
           {isExpanded ? (
@@ -54,7 +55,7 @@ export function Sidebar() {
           <li className="mb-1">
             <a
               href="#"
-              className="flex items-center py-3 px-5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-all"
+              className="flex items-center py-3 px-5 rounded-lg transition-all"
               style={{ backgroundColor: 'var(--theme-background)' }}
             >
               <Home className="w-5 h-5 mr-3" style={{ color: 'var(--theme-textSecondary)' }} />
@@ -64,7 +65,7 @@ export function Sidebar() {
           <li className="mb-1">
             <a
               href="#"
-              className="flex items-center py-3 px-5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-all"
+              className="flex items-center py-3 px-5 rounded-lg transition-all"
               style={{ backgroundColor: 'var(--theme-background)' }}
             >
               <Users className="w-5 h-5 mr-3" style={{ color: 'var(--theme-textSecondary)' }} />
@@ -74,7 +75,7 @@ export function Sidebar() {
           <li className="mb-1">
             <a
               href="#"
-              className="flex items-center py-3 px-5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-all"
+              className="flex items-center py-3 px-5 rounded-lg transition-all"
               style={{ backgroundColor: 'var(--theme-background)' }}
             >
               <Calendar className="w-5 h-5 mr-3" style={{ color: 'var(--theme-textSecondary)' }} />
@@ -84,7 +85,7 @@ export function Sidebar() {
           <li className="mb-1">
             <a
               href="#"
-              className="flex items-center py-3 px-5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-all"
+              className="flex items-center py-3 px-5 rounded-lg transition-all"
               style={{ backgroundColor: 'var(--theme-background)' }}
             >
               <BarChart3 className="w-5 h-5 mr-3" style={{ color: 'var(--theme-textSecondary)' }} />
@@ -94,7 +95,7 @@ export function Sidebar() {
           <li className="mb-1">
             <a
               href="#"
-              className="flex items-center py-3 px-5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-all"
+              className="flex items-center py-3 px-5 rounded-lg transition-all"
               style={{ backgroundColor: 'var(--theme-background)' }}
             >
               <Folder className="w-5 h-5 mr-3" style={{ color: 'var(--theme-textSecondary)' }} />
@@ -104,7 +105,7 @@ export function Sidebar() {
           <li className="mb-1">
             <a
               href="#"
-              className="flex items-center py-3 px-5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-all"
+              className="flex items-center py-3 px-5 rounded-lg transition-all"
               style={{ backgroundColor: 'var(--theme-background)' }}
             >
               <Settings className="w-5 h-5 mr-3" style={{ color: 'var(--theme-textSecondary)' }} />
