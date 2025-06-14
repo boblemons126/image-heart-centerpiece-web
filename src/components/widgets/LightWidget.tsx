@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Lightbulb, Power } from 'lucide-react';
@@ -18,68 +19,101 @@ export function LightWidget({ device, widget, onToggle }: LightWidgetProps) {
     <motion.div
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl hover:shadow-2xl transition-all duration-300"
+      className="relative overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-lg"
+      style={{
+        backgroundColor: 'var(--theme-surface)',
+        borderColor: 'var(--theme-border)',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      }}
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-3">
-          <div className={`p-3 rounded-xl ${isOn ? 'bg-yellow-100 dark:bg-yellow-900/30' : 'bg-gray-100 dark:bg-slate-700'} transition-colors`}>
-            <Lightbulb 
-              className={`w-6 h-6 ${isOn ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-500 dark:text-gray-400'}`} 
-            />
-          </div>
-          <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">{device.name}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{device.room}</p>
-          </div>
-        </div>
-        
-        <button
-          onClick={onToggle}
-          className={`p-2 rounded-lg transition-all ${
-            isOn 
-              ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg' 
-              : 'bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-600 dark:text-gray-400'
-          }`}
-        >
-          <Power className="w-4 h-4" />
-        </button>
-      </div>
-
-      {isOn && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
-          className="space-y-4"
-        >
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Brightness</span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">{brightness}%</span>
+      {/* Background gradient overlay */}
+      <div 
+        className="absolute inset-0 opacity-5"
+        style={{
+          background: `linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-accent) 100%)`,
+        }}
+      />
+      
+      <div className="relative p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <div 
+              className={`p-3 rounded-xl transition-all duration-300 ${
+                isOn ? 'shadow-lg' : ''
+              }`}
+              style={{
+                backgroundColor: isOn ? 'var(--theme-accent)' : 'var(--theme-background)',
+                color: isOn ? '#ffffff' : 'var(--theme-textSecondary)',
+              }}
+            >
+              <Lightbulb className="w-6 h-6" />
             </div>
-            <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
+            <div>
+              <h3 className="font-semibold" style={{ color: 'var(--theme-text)' }}>{device.name}</h3>
+              <p className="text-sm" style={{ color: 'var(--theme-textSecondary)' }}>{device.room}</p>
+            </div>
+          </div>
+          
+          <button
+            onClick={onToggle}
+            className="p-2 rounded-lg transition-all duration-300 hover:scale-105"
+            style={{
+              backgroundColor: isOn ? 'var(--theme-primary)' : 'var(--theme-background)',
+              color: isOn ? '#ffffff' : 'var(--theme-textSecondary)',
+              boxShadow: isOn ? '0 4px 14px 0 rgba(0, 0, 0, 0.2)' : 'none',
+            }}
+          >
+            <Power className="w-4 h-4" />
+          </button>
+        </div>
+
+        {isOn && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="space-y-4"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium" style={{ color: 'var(--theme-text)' }}>Brightness</span>
+                <span className="text-sm" style={{ color: 'var(--theme-textSecondary)' }}>{brightness}%</span>
+              </div>
               <div 
-                className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-2 rounded-full transition-all"
-                style={{ width: `${brightness}%` }}
+                className="w-full rounded-full h-2"
+                style={{ backgroundColor: 'var(--theme-background)' }}
+              >
+                <div 
+                  className="h-2 rounded-full transition-all duration-300"
+                  style={{ 
+                    width: `${brightness}%`,
+                    background: `linear-gradient(90deg, var(--theme-accent), var(--theme-primary))`,
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <span className="text-sm font-medium" style={{ color: 'var(--theme-text)' }}>Color</span>
+              <div 
+                className="w-6 h-6 rounded-full border-2 shadow-sm"
+                style={{ 
+                  backgroundColor: color,
+                  borderColor: 'var(--theme-border)',
+                }}
               />
             </div>
-          </div>
+          </motion.div>
+        )}
 
-          <div className="flex items-center space-x-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Color</span>
-            <div 
-              className="w-6 h-6 rounded-full border-2 border-white shadow-sm"
-              style={{ backgroundColor: color }}
-            />
-          </div>
-        </motion.div>
-      )}
-
-      <div className="mt-4 flex items-center justify-between">
-        <div className={`w-2 h-2 rounded-full ${device.status === 'online' ? 'bg-green-500' : 'bg-red-500'}`} />
-        <span className="text-xs text-gray-500 dark:text-gray-400">
-          {device.lastUpdated.toLocaleTimeString()}
-        </span>
+        <div className="mt-4 flex items-center justify-between">
+          <div 
+            className={`w-2 h-2 rounded-full ${device.status === 'online' ? 'bg-green-500' : 'bg-red-500'}`} 
+          />
+          <span className="text-xs" style={{ color: 'var(--theme-textSecondary)' }}>
+            {device.lastUpdated.toLocaleTimeString()}
+          </span>
+        </div>
       </div>
     </motion.div>
   );
