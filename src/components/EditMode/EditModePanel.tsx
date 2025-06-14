@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -67,26 +68,33 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
       transition={{ type: "spring", damping: 25, stiffness: 200 }}
       className="fixed top-4 right-4 z-50 w-80 max-h-[calc(100vh-2rem)] flex flex-col"
       style={{ pointerEvents: 'auto' }}
+      drag
+      dragMomentum={false}
+      dragElastic={0}
+      dragConstraints={{
+        left: -window.innerWidth / 2,
+        right: window.innerWidth / 2,
+        top: -window.innerHeight / 2,
+        bottom: window.innerHeight / 2,
+      }}
+      dragListener={false}
+      onDragStart={() => setIsDragging(true)}
+      onDragEnd={() => setIsDragging(false)}
     >
       {/* Header - Draggable Area */}
-      <motion.div 
+      <div 
         ref={dragRef}
-        drag
-        dragMomentum={false}
-        dragElastic={0}
-        dragConstraints={{
-          left: -window.innerWidth / 2,
-          right: window.innerWidth / 2,
-          top: -window.innerHeight / 2,
-          bottom: window.innerHeight / 2,
-        }}
-        onDragStart={() => setIsDragging(true)}
-        onDragEnd={() => setIsDragging(false)}
         className={`backdrop-blur-xl border border-opacity-50 rounded-t-2xl shadow-2xl ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         style={{ 
           backgroundColor: 'var(--theme-surface)', 
           borderColor: 'var(--theme-border)',
           color: 'var(--theme-text)'
+        }}
+        onPointerDown={(e) => {
+          const controls = (e.currentTarget.parentElement as any)?._dragControls;
+          if (controls) {
+            controls.start(e);
+          }
         }}
       >
         <div 
@@ -130,6 +138,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
               onClick={() => setIsMinimized(!isMinimized)}
               className="p-2 hover:opacity-70 rounded-lg transition-all"
               style={{ backgroundColor: 'var(--theme-background)' }}
+              onPointerDown={(e) => e.stopPropagation()}
             >
               <ChevronRight 
                 className={`w-4 h-4 transition-transform ${
@@ -142,6 +151,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
               onClick={() => setEditMode(false)}
               className="p-2 hover:bg-red-500/20 rounded-lg transition-all group"
               style={{ backgroundColor: 'var(--theme-background)' }}
+              onPointerDown={(e) => e.stopPropagation()}
             >
               <X 
                 className="w-4 h-4 group-hover:text-red-500 transition-colors"
@@ -156,6 +166,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
           <div 
             className="flex border-b border-opacity-50"
             style={{ borderColor: 'var(--theme-border)' }}
+            onPointerDown={(e) => e.stopPropagation()}
           >
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -183,7 +194,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
             })}
           </div>
         )}
-      </motion.div>
+      </div>
 
       {/* Content - Not draggable */}
       <AnimatePresence mode="wait">
@@ -200,6 +211,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
               borderColor: 'var(--theme-border)',
               pointerEvents: 'auto'
             }}
+            onPointerDown={(e) => e.stopPropagation()}
           >
             <div className="p-4 h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 dark:scrollbar-thumb-slate-600">
               {activeTab === 'widgets' && (
@@ -438,6 +450,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
             backgroundColor: 'var(--theme-surface)', 
             borderColor: 'var(--theme-border)'
           }}
+          onPointerDown={(e) => e.stopPropagation()}
         >
           <button
             onClick={() => setEditMode(false)}
