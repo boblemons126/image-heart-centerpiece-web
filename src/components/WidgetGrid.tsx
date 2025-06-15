@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -183,6 +184,13 @@ export function WidgetGrid() {
     }
   }
 
+  // Calculate how many empty slots to show based on current grid
+  const getEmptySlots = () => {
+    const currentWidgets = widgets.length;
+    const minSlots = 8; // Minimum empty slots to show
+    return Math.max(minSlots - currentWidgets, 4);
+  };
+
   return (
     <div className="relative">
       {isEditMode && (
@@ -210,52 +218,43 @@ export function WidgetGrid() {
       >
         <SortableContext items={widgets.map(w => w.id)}>
           <DropZone id="dashboard-drop-zone" isEmpty={widgets.length === 0 && isEditMode}>
-            <div className="relative">
-              {/* Debug Grid Overlay */}
-              {isEditMode && (
-                <div className="absolute inset-0 pointer-events-none z-10 opacity-50">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 h-full">
-                    {Array.from({ length: 12 }).map((_, index) => (
-                      <div
-                        key={`debug-grid-${index}`}
-                        className="border-2 border-red-400 border-dashed rounded-lg bg-red-100/20 dark:bg-red-900/20 min-h-[200px] flex items-center justify-center"
-                      >
-                        <span className="text-red-600 dark:text-red-400 text-sm font-mono">
-                          Grid {index + 1}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Actual Widget Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-min relative z-20">
-                <AnimatePresence mode="popLayout">
-                  {widgets.map((widget) => {
-                    return (
-                      <motion.div
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-min relative">
+              <AnimatePresence mode="popLayout">
+                {widgets.map((widget) => {
+                  return (
+                    <motion.div
+                      key={widget.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                      transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
+                      className={getGridSpan(widget.size)}
+                    >
+                      <SortableWidget 
                         key={widget.id}
-                        layout
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                        transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
-                        className={getGridSpan(widget.size)}
+                        widget={widget} 
+                        onSelect={handleWidgetSelect}
+                        onDelete={handleWidgetDelete}
                       >
-                        <SortableWidget 
-                          key={widget.id}
-                          widget={widget} 
-                          onSelect={handleWidgetSelect}
-                          onDelete={handleWidgetDelete}
-                        >
-                          {renderWidget(widget)}
-                        </SortableWidget>
-                      </motion.div>
-                    );
-                  })}
-                </AnimatePresence>
-              </div>
+                        {renderWidget(widget)}
+                      </SortableWidget>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+              
+              {/* Debug Drop Zones - Only show when in edit mode */}
+              {isEditMode && Array.from({ length: getEmptySlots() }).map((_, index) => (
+                <div
+                  key={`debug-drop-zone-${index}`}
+                  className="col-span-1 border-2 border-red-400 border-dashed rounded-lg bg-red-100/20 dark:bg-red-900/20 min-h-[200px] flex items-center justify-center opacity-50"
+                >
+                  <span className="text-red-600 dark:text-red-400 text-sm font-mono">
+                    Drop Zone {widgets.length + index + 1}
+                  </span>
+                </div>
+              ))}
             </div>
           </DropZone>
         </SortableContext>
