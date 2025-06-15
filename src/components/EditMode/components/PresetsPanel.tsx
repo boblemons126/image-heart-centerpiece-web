@@ -6,7 +6,6 @@ import {
   Star, 
   Download, 
   Save,
-  Trash2,
   Check
 } from 'lucide-react';
 import { 
@@ -16,7 +15,6 @@ import {
   createPreset,
   DashboardPreset 
 } from '../../../services/dashboard-presets';
-import { loadDashboardConfig } from '../../../services/dashboard-service';
 import { toast } from 'sonner';
 
 export function PresetsPanel() {
@@ -56,84 +54,109 @@ export function PresetsPanel() {
     }
   };
 
-  const handleCreateModernPreset = () => {
+  const handleCreateHomeAssistantPreset = () => {
     try {
-      const modernConfig = {
-        title: 'Modern Smart Home',
+      // Creating a preset inspired by the Home Assistant screenshot
+      const homeAssistantConfig = {
+        title: 'Home Assistant Style Dashboard',
         views: [
           {
-            id: 'view-modern',
-            title: 'Modern Home',
-            path: 'modern',
+            id: 'view-ha-style',
+            title: 'Home',
+            path: 'home',
             widgets: [
               {
-                id: 'modern-thermostat',
-                deviceId: 'device-2',
-                type: 'thermostat' as const,
-                size: 'large' as const,
-                customization: {
-                  theme: 'auto' as const,
-                  color: '#10B981',
-                  showLabel: true,
-                  showStatus: true,
-                },
-              },
-              {
-                id: 'modern-lights-1',
+                id: 'ha-lights-main',
                 deviceId: 'device-1',
                 type: 'light' as const,
                 size: 'medium' as const,
                 customization: {
                   theme: 'auto' as const,
-                  color: '#3B82F6',
+                  color: '#FF6B35',
                   showLabel: true,
                   showStatus: true,
                 },
               },
               {
-                id: 'modern-lights-2',
+                id: 'ha-lights-corner',
                 deviceId: 'device-3',
                 type: 'light' as const,
                 size: 'medium' as const,
                 customization: {
                   theme: 'auto' as const,
-                  color: '#F59E0B',
+                  color: '#8B5A2B',
                   showLabel: true,
                   showStatus: true,
                 },
               },
               {
-                id: 'modern-security',
+                id: 'ha-thermostat',
+                deviceId: 'device-2',
+                type: 'thermostat' as const,
+                size: 'large' as const,
+                customization: {
+                  theme: 'auto' as const,
+                  color: '#E74C3C',
+                  showLabel: true,
+                  showStatus: true,
+                },
+              },
+              {
+                id: 'ha-security',
                 deviceId: 'device-4',
                 type: 'security' as const,
                 size: 'medium' as const,
                 customization: {
                   theme: 'auto' as const,
-                  color: '#EF4444',
+                  color: '#9B59B6',
                   showLabel: true,
                   showStatus: true,
                 },
               },
               {
-                id: 'modern-camera',
-                deviceId: 'device-5',
-                type: 'camera' as const,
-                size: 'large' as const,
-                customization: {
-                  theme: 'auto' as const,
-                  color: '#8B5CF6',
-                  showLabel: true,
-                  showStatus: true,
-                },
-              },
-              {
-                id: 'modern-lock',
+                id: 'ha-lock',
                 deviceId: 'device-6',
                 type: 'lock' as const,
                 size: 'medium' as const,
                 customization: {
                   theme: 'auto' as const,
-                  color: '#EC4899',
+                  color: '#2ECC71',
+                  showLabel: true,
+                  showStatus: true,
+                },
+              },
+              {
+                id: 'ha-camera',
+                deviceId: 'device-5',
+                type: 'camera' as const,
+                size: 'large' as const,
+                customization: {
+                  theme: 'auto' as const,
+                  color: '#3498DB',
+                  showLabel: true,
+                  showStatus: true,
+                },
+              },
+              {
+                id: 'ha-sensor-1',
+                deviceId: 'device-7',
+                type: 'sensor' as const,
+                size: 'medium' as const,
+                customization: {
+                  theme: 'auto' as const,
+                  color: '#F39C12',
+                  showLabel: true,
+                  showStatus: true,
+                },
+              },
+              {
+                id: 'ha-sensor-2',
+                deviceId: 'device-8',
+                type: 'sensor' as const,
+                size: 'medium' as const,
+                customization: {
+                  theme: 'auto' as const,
+                  color: '#1ABC9C',
                   showLabel: true,
                   showStatus: true,
                 },
@@ -143,22 +166,22 @@ export function PresetsPanel() {
         ],
       };
 
-      const modernPreset = {
+      const homeAssistantPreset = {
         id: 'preset-1',
-        name: 'Modern Layout',
-        description: 'A clean, modern dashboard layout with optimal widget placement',
-        config: modernConfig,
+        name: 'Home Assistant Style',
+        description: 'A colorful dashboard inspired by Home Assistant with gradient cards and vibrant colors',
+        config: homeAssistantConfig,
       };
 
-      createPreset(modernPreset);
+      createPreset(homeAssistantPreset);
       setPresets(loadPresets());
       
-      toast.success('Modern preset created successfully', {
-        description: 'Preset 1 has been added to your collection.',
+      toast.success('Home Assistant preset created successfully', {
+        description: 'Preset 1 has been added with a beautiful gradient design.',
       });
     } catch (error) {
-      toast.error('Failed to create modern preset');
-      console.error('Error creating modern preset:', error);
+      toast.error('Failed to create Home Assistant preset');
+      console.error('Error creating Home Assistant preset:', error);
     }
   };
 
@@ -193,12 +216,12 @@ export function PresetsPanel() {
         </button>
 
         <button
-          onClick={handleCreateModernPreset}
+          onClick={handleCreateHomeAssistantPreset}
           className="w-full flex items-center space-x-2 p-3 rounded-lg text-sm text-white transition-all hover:opacity-90"
           style={{ backgroundColor: 'var(--theme-primary)' }}
         >
           <Star className="w-4 h-4" />
-          <span>Create Modern Preset</span>
+          <span>Create Home Assistant Style Preset</span>
         </button>
       </div>
 
@@ -223,7 +246,10 @@ export function PresetsPanel() {
               style={{ 
                 backgroundColor: 'var(--theme-background)', 
                 borderColor: 'var(--theme-border)',
-                ringColor: selectedPreset === preset.id ? 'var(--theme-primary)' : 'transparent'
+                ...(selectedPreset === preset.id ? {
+                  borderColor: 'var(--theme-primary)',
+                  borderWidth: '2px'
+                } : {})
               }}
               onClick={() => handleApplyPreset(preset.id)}
             >
