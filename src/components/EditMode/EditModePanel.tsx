@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -10,7 +11,8 @@ import {
   Layout,
   Sparkles,
   Info,
-  Bookmark
+  Bookmark,
+  Move
 } from 'lucide-react';
 import { useEditMode } from './EditModeProvider';
 import { WidgetLibrary } from './components/WidgetLibrary';
@@ -34,6 +36,9 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
   const [activeTab, setActiveTab] = useState<'widgets' | 'presets' | 'settings' | 'help'>('widgets');
   const [isMinimized, setIsMinimized] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState('dark');
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const dragRef = useRef<HTMLDivElement>(null);
 
   const availableThemes = getAllThemes();
@@ -43,6 +48,49 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
     const savedThemeId = localStorage.getItem('selected-theme') || 'dark';
     setSelectedTheme(savedThemeId);
   }, []);
+
+  // Handle mouse events for dragging
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      
+      const newX = e.clientX - dragStart.x;
+      const newY = e.clientY - dragStart.y;
+      
+      // Constrain to viewport
+      const maxX = window.innerWidth - 320; // 320px is panel width
+      const maxY = window.innerHeight - 200; // Min height for panel
+      
+      setPosition({
+        x: Math.max(0, Math.min(newX, maxX)),
+        y: Math.max(0, Math.min(newY, maxY))
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, dragStart]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.target === dragRef.current || dragRef.current?.contains(e.target as Node)) {
+      setIsDragging(true);
+      setDragStart({
+        x: e.clientX - position.x,
+        y: e.clientY - position.y
+      });
+    }
+  };
 
   const tabs = [
     { id: 'widgets', label: 'Widgets', icon: Grid3X3 },
@@ -63,16 +111,26 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
   return (
     <motion.div
       initial={{ x: 0, y: 0, opacity: 0 }}
-      animate={{ x: 0, y: 0, opacity: 1 }}
+      animate={{ 
+        x: position.x, 
+        y: position.y, 
+        opacity: 1 
+      }}
       exit={{ x: 400, opacity: 0 }}
       transition={{ type: "spring", damping: 25, stiffness: 200 }}
       className="fixed top-4 right-4 z-50 w-80 max-h-[calc(100vh-2rem)] flex flex-col"
-      style={{ pointerEvents: 'auto' }}
+      style={{ 
+        pointerEvents: 'auto',
+        transform: `translate(${position.x}px, ${position.y}px)`
+      }}
     >
       {/* Header - Draggable Area */}
       <div 
         ref={dragRef}
-        className={`backdrop-blur-xl border border-opacity-50 rounded-t-2xl shadow-2xl cursor-grab`}
+        onMouseDown={handleMouseDown}
+        className={`backdrop-blur-xl border border-opacity-50 rounded-t-2xl shadow-2xl ${
+          isDragging ? 'cursor-grabbing' : 'cursor-grab'
+        }`}
         style={{ 
           backgroundColor: 'var(--theme-surface)', 
           borderColor: 'var(--theme-border)',
@@ -98,10 +156,11 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
                 Dashboard Editor
               </h3>
               <p 
-                className="text-xs"
+                className="text-xs flex items-center space-x-1"
                 style={{ color: 'var(--theme-textSecondary)' }}
               >
-                Drag widgets to dashboard
+                <Move className="w-3 h-3" />
+                <span>Drag to move • Drop widgets below</span>
               </p>
             </div>
           </div>
