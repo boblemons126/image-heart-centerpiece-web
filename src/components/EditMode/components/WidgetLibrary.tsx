@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useDraggable } from '@dnd-kit/core';
 import { 
   Lightbulb, 
   Thermometer, 
@@ -153,6 +154,54 @@ const widgetTemplates: WidgetTemplate[] = [
   },
 ];
 
+function DraggableWidgetItem({ widget, onSelect }: { widget: WidgetTemplate; onSelect: (template: WidgetTemplate) => void }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    isDragging,
+  } = useDraggable({
+    id: widget.id,
+    data: {
+      type: 'widget-template',
+      template: widget,
+    },
+  });
+
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  } : undefined;
+
+  return (
+    <motion.div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      onClick={() => !isDragging && onSelect(widget)}
+      className={`flex items-center space-x-3 p-4 rounded-lg transition-all duration-200 cursor-grab active:cursor-grabbing ${
+        isDragging ? 'opacity-50 scale-105 z-50' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+      }`}
+      whileHover={{ scale: isDragging ? 1 : 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      style={{
+        backgroundColor: isDragging ? 'var(--theme-primary)' : 'var(--theme-background)',
+        color: isDragging ? 'white' : 'var(--theme-text)',
+        ...style,
+      }}
+    >
+      <widget.icon className="w-5 h-5" style={{ color: isDragging ? 'white' : 'var(--theme-primary)' }} />
+      <div>
+        <h4 className="font-medium">{widget.name}</h4>
+        <p className="text-sm" style={{ color: isDragging ? 'rgba(255,255,255,0.8)' : 'var(--theme-textSecondary)' }}>
+          {widget.description}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
 interface WidgetLibraryProps {
   onSelectWidget: (template: WidgetTemplate) => void;
 }
@@ -180,25 +229,13 @@ export function WidgetLibrary({ onSelectWidget }: WidgetLibraryProps) {
       <WidgetSearch onSearch={handleSearch} />
 
       {searchTerm ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-2">
           {filteredWidgets.map((widget) => (
-            <motion.button
+            <DraggableWidgetItem
               key={widget.id}
-              onClick={() => handleSelect(widget)}
-              className="flex items-center space-x-3 p-4 rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              style={{
-                backgroundColor: 'var(--theme-background)',
-                color: 'var(--theme-text)'
-              }}
-            >
-              <widget.icon className="w-5 h-5" style={{ color: 'var(--theme-primary)' }} />
-              <div>
-                <h4 className="font-medium">{widget.name}</h4>
-                <p className="text-sm" style={{ color: 'var(--theme-textSecondary)' }}>{widget.description}</p>
-              </div>
-            </motion.button>
+              widget={widget}
+              onSelect={handleSelect}
+            />
           ))}
         </div>
       ) : (
@@ -206,27 +243,15 @@ export function WidgetLibrary({ onSelectWidget }: WidgetLibraryProps) {
           {categoryList.map(category => (
             <div key={category} className="space-y-2">
               <h3 className="font-medium text-sm" style={{ color: 'var(--theme-text)' }}>{category}</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-2">
                 {widgetTemplates
                   .filter(widget => widget.category === category)
                   .map((widget) => (
-                    <motion.button
+                    <DraggableWidgetItem
                       key={widget.id}
-                      onClick={() => handleSelect(widget)}
-                      className="flex items-center space-x-3 p-4 rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      style={{
-                        backgroundColor: 'var(--theme-background)',
-                        color: 'var(--theme-text)'
-                      }}
-                    >
-                      <widget.icon className="w-5 h-5" style={{ color: 'var(--theme-primary)' }} />
-                      <div>
-                        <h4 className="font-medium">{widget.name}</h4>
-                        <p className="text-sm" style={{ color: 'var(--theme-textSecondary)' }}>{widget.description}</p>
-                      </div>
-                    </motion.button>
+                      widget={widget}
+                      onSelect={handleSelect}
+                    />
                   ))}
               </div>
             </div>
