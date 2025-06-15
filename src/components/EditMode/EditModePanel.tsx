@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -80,6 +79,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
       dragListener={false}
       onDragStart={() => setIsDragging(true)}
       onDragEnd={() => setIsDragging(false)}
+      whileDrag={{ cursor: 'grabbing' }}
     >
       {/* Header - Draggable Area */}
       <div 
@@ -90,10 +90,39 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
           borderColor: 'var(--theme-border)',
           color: 'var(--theme-text)'
         }}
-        onPointerDown={(e) => {
-          const controls = (e.currentTarget.parentElement as any)?._dragControls;
-          if (controls) {
-            controls.start(e);
+        onMouseDown={(e) => {
+          e.preventDefault();
+          const parent = e.currentTarget.parentElement as any;
+          if (parent && parent.style) {
+            const rect = parent.getBoundingClientRect();
+            const offsetX = e.clientX - rect.left;
+            const offsetY = e.clientY - rect.top;
+            
+            const handleMouseMove = (moveEvent: MouseEvent) => {
+              const x = moveEvent.clientX - offsetX;
+              const y = moveEvent.clientY - offsetY;
+              
+              // Apply constraints
+              const maxX = window.innerWidth - rect.width;
+              const maxY = window.innerHeight - rect.height;
+              
+              const constrainedX = Math.max(0, Math.min(x, maxX));
+              const constrainedY = Math.max(0, Math.min(y, maxY));
+              
+              parent.style.left = `${constrainedX}px`;
+              parent.style.top = `${constrainedY}px`;
+              parent.style.right = 'auto';
+            };
+            
+            const handleMouseUp = () => {
+              setIsDragging(false);
+              document.removeEventListener('mousemove', handleMouseMove);
+              document.removeEventListener('mouseup', handleMouseUp);
+            };
+            
+            setIsDragging(true);
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
           }
         }}
       >
@@ -138,7 +167,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
               onClick={() => setIsMinimized(!isMinimized)}
               className="p-2 hover:opacity-70 rounded-lg transition-all"
               style={{ backgroundColor: 'var(--theme-background)' }}
-              onPointerDown={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
             >
               <ChevronRight 
                 className={`w-4 h-4 transition-transform ${
@@ -151,7 +180,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
               onClick={() => setEditMode(false)}
               className="p-2 hover:bg-red-500/20 rounded-lg transition-all group"
               style={{ backgroundColor: 'var(--theme-background)' }}
-              onPointerDown={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
             >
               <X 
                 className="w-4 h-4 group-hover:text-red-500 transition-colors"
@@ -166,7 +195,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
           <div 
             className="flex border-b border-opacity-50"
             style={{ borderColor: 'var(--theme-border)' }}
-            onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
           >
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -211,7 +240,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
               borderColor: 'var(--theme-border)',
               pointerEvents: 'auto'
             }}
-            onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
           >
             <div className="p-4 h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 dark:scrollbar-thumb-slate-600">
               {activeTab === 'widgets' && (
@@ -450,7 +479,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
             backgroundColor: 'var(--theme-surface)', 
             borderColor: 'var(--theme-border)'
           }}
-          onPointerDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
         >
           <button
             onClick={() => setEditMode(false)}
