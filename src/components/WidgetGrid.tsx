@@ -28,6 +28,7 @@ import { SensorWidget } from './widgets/SensorWidget';
 import { WidgetCustomizer } from './EditMode/WidgetCustomizer';
 import { SortableWidget } from './EditMode/SortableWidget';
 import { DropZone } from './EditMode/components/DropZone';
+import { GridToggleWidget } from './widgets/GridToggleWidget';
 import { toast } from 'sonner';
 
 export function WidgetGrid() {
@@ -120,6 +121,9 @@ export function WidgetGrid() {
         break;
       case 'sensor':
         WidgetComponent = SensorWidget;
+        break;
+      case 'grid-toggle':
+        WidgetComponent = GridToggleWidget;
         break;
       default:
         return null;

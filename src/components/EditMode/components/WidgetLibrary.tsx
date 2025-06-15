@@ -9,7 +9,8 @@ import {
   Shield, 
   Activity, 
   Zap, 
-  Wifi
+  Wifi,
+  Grid3X3
 } from 'lucide-react';
 import { WidgetSearch } from './WidgetSearch';
 
@@ -49,6 +50,20 @@ const widgetTemplates: WidgetTemplate[] = [
       <div className="flex items-center space-x-3">
         <Thermometer className="w-6 h-6 text-red-500" />
         <span>Thermostat Widget</span>
+      </div>
+    ),
+  },
+  {
+    id: 'grid-toggle-widget',
+    name: 'Grid Toggle',
+    description: 'Control multiple devices with a customizable grid',
+    icon: Grid3X3,
+    category: 'Control',
+    type: 'grid-toggle',
+    template: (
+      <div className="flex items-center space-x-3">
+        <Grid3X3 className="w-6 h-6 text-purple-500" />
+        <span>Grid Toggle Widget</span>
       </div>
     ),
   },
