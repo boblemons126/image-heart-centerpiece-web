@@ -171,7 +171,12 @@ function DraggableWidgetItem({ widget, onSelect }: { widget: WidgetTemplate; onS
 
   const style = transform ? {
     transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-  } : undefined;
+    backgroundColor: isDragging ? 'var(--theme-primary)' : 'var(--theme-background)',
+    color: isDragging ? 'white' : 'var(--theme-text)',
+  } : {
+    backgroundColor: 'var(--theme-background)',
+    color: 'var(--theme-text)',
+  };
 
   return (
     <motion.div
@@ -185,11 +190,6 @@ function DraggableWidgetItem({ widget, onSelect }: { widget: WidgetTemplate; onS
       }`}
       whileHover={{ scale: isDragging ? 1 : 1.02 }}
       whileTap={{ scale: 0.98 }}
-      style={{
-        backgroundColor: isDragging ? 'var(--theme-primary)' : 'var(--theme-background)',
-        color: isDragging ? 'white' : 'var(--theme-text)',
-        ...style,
-      }}
     >
       <widget.icon className="w-5 h-5" style={{ color: isDragging ? 'white' : 'var(--theme-primary)' }} />
       <div>

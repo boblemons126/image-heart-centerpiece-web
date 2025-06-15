@@ -10,7 +10,6 @@ import {
   Layout,
   Sparkles,
   Info,
-  GripVertical,
   Bookmark
 } from 'lucide-react';
 import { useEditMode } from './EditModeProvider';
@@ -34,7 +33,6 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
   const { setEditMode } = useEditMode();
   const [activeTab, setActiveTab] = useState<'widgets' | 'presets' | 'settings' | 'help'>('widgets');
   const [isMinimized, setIsMinimized] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState('dark');
   const dragRef = useRef<HTMLDivElement>(null);
 
@@ -74,7 +72,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
       {/* Header - Draggable Area */}
       <div 
         ref={dragRef}
-        className={`backdrop-blur-xl border border-opacity-50 rounded-t-2xl shadow-2xl ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`backdrop-blur-xl border border-opacity-50 rounded-t-2xl shadow-2xl cursor-grab`}
         style={{ 
           backgroundColor: 'var(--theme-surface)', 
           borderColor: 'var(--theme-border)',
