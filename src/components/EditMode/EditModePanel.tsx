@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -387,63 +388,6 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
                           ))}
                         </SelectContent>
                       </Select>
-                      
-                      {/* Theme Preview */}
-                      <div 
-                        className="mt-3 p-3 rounded-lg border border-opacity-50"
-                        style={{ 
-                          backgroundColor: 'var(--theme-surface)', 
-                          borderColor: 'var(--theme-border)'
-                        }}
-                      >
-                        <p 
-                          className="text-xs mb-2"
-                          style={{ color: 'var(--theme-textSecondary)' }}
-                        >
-                          Preview:
-                        </p>
-                        <div className="flex space-x-2">
-                          {(() => {
-                            const currentTheme = getThemeById(selectedTheme);
-                            return currentTheme ? (
-                              <>
-                                <div 
-                                  className="w-6 h-6 rounded border border-opacity-30"
-                                  style={{ 
-                                    backgroundColor: currentTheme.colors.primary,
-                                    borderColor: 'var(--theme-border)'
-                                  }}
-                                  title="Primary"
-                                />
-                                <div 
-                                  className="w-6 h-6 rounded border border-opacity-30"
-                                  style={{ 
-                                    backgroundColor: currentTheme.colors.secondary,
-                                    borderColor: 'var(--theme-border)'
-                                  }}
-                                  title="Secondary"
-                                />
-                                <div 
-                                  className="w-6 h-6 rounded border border-opacity-30"
-                                  style={{ 
-                                    backgroundColor: currentTheme.colors.accent,
-                                    borderColor: 'var(--theme-border)'
-                                  }}
-                                  title="Accent"
-                                />
-                                <div 
-                                  className="w-6 h-6 rounded border border-opacity-30"
-                                  style={{ 
-                                    backgroundColor: currentTheme.colors.background,
-                                    borderColor: 'var(--theme-border)'
-                                  }}
-                                  title="Background"
-                                />
-                              </>
-                            ) : null;
-                          })()}
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>
