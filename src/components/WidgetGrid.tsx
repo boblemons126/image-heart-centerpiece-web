@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -9,7 +8,6 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
-  DragOverlay,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -30,7 +28,6 @@ import { SensorWidget } from './widgets/SensorWidget';
 import { WidgetCustomizer } from './EditMode/WidgetCustomizer';
 import { SortableWidget } from './EditMode/SortableWidget';
 import { DropZone } from './EditMode/components/DropZone';
-import { GridToggleWidget } from './widgets/GridToggleWidget';
 import { toast } from 'sonner';
 
 export function WidgetGrid() {
@@ -45,7 +42,6 @@ export function WidgetGrid() {
   } = useDashboard();
   const { isEditMode, setSelectedWidget, selectedWidget } = useEditMode();
   const [customizerWidget, setCustomizerWidget] = useState<Widget | null>(null);
-  const [activeId, setActiveId] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -125,9 +121,6 @@ export function WidgetGrid() {
       case 'sensor':
         WidgetComponent = SensorWidget;
         break;
-      case 'grid-toggle':
-        WidgetComponent = GridToggleWidget;
-        break;
       default:
         return null;
     }
@@ -148,23 +141,16 @@ export function WidgetGrid() {
     }
   };
 
-  function handleDragStart(event: any) {
-    setActiveId(event.active.id);
-  }
-
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-    setActiveId(null);
     
     if (!over) return;
 
-    // Handle widget template drops from the widget library
+    // Handle widget template drops
     if (active.data.current?.type === 'widget-template') {
       const template = active.data.current.template;
-      console.log('Dropping widget template:', template);
-      
       const newWidget = {
-        id: `widget-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: `widget-${Date.now()}`,
         deviceId: `device-${Math.floor(Math.random() * 8) + 1}`,
         type: template.type as any,
         size: 'medium' as const,
@@ -197,8 +183,6 @@ export function WidgetGrid() {
     }
   }
 
-  const activeWidget = activeId ? widgets.find(w => w.id === activeId) : null;
-
   return (
     <div className="relative">
       {isEditMode && (
@@ -209,7 +193,7 @@ export function WidgetGrid() {
                 Edit Mode Active
               </h3>
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                Drag widgets from the panel on the right to add them, or drag existing widgets to rearrange them.
+                Use the panel on the right to add widgets, or drag existing widgets to rearrange them.
               </p>
             </div>
             <div className="text-sm text-blue-600 dark:text-blue-400">
@@ -222,7 +206,6 @@ export function WidgetGrid() {
       <DndContext 
         sensors={sensors}
         collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
         <SortableContext items={widgets.map(w => w.id)}>
@@ -255,14 +238,6 @@ export function WidgetGrid() {
             </div>
           </DropZone>
         </SortableContext>
-        
-        <DragOverlay>
-          {activeWidget && (
-            <div className="opacity-80 transform rotate-3 scale-105">
-              {renderWidget(activeWidget)}
-            </div>
-          )}
-        </DragOverlay>
       </DndContext>
 
       <WidgetCustomizer

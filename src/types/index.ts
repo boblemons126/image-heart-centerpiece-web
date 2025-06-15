@@ -1,4 +1,3 @@
-
 export interface Device {
   id: string;
   name: string;
@@ -18,8 +17,7 @@ export type DeviceType =
   | 'switch' 
   | 'camera' 
   | 'lock'
-  | 'weather'
-  | 'grid-toggle';
+  | 'weather';
 
 export type DeviceStatus = 'online' | 'offline' | 'error';
 
