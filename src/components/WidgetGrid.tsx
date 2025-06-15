@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -9,6 +8,7 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -49,6 +49,7 @@ export function WidgetGrid() {
   } = useDashboard();
   const { isEditMode, setSelectedWidget, selectedWidget } = useEditMode();
   const [customizerWidget, setCustomizerWidget] = useState<Widget | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -72,7 +73,7 @@ export function WidgetGrid() {
     type: 'empty',
   }));
 
-  const gridItems: (Widget | EmptySlot)[] = [...widgets, ...emptySlots];
+  const gridItems: (Widget | EmptySlot)[] = [...widgets, ...(isEditMode ? emptySlots : [])];
 
   if (loading) {
     return (
@@ -161,7 +162,12 @@ export function WidgetGrid() {
     }
   };
 
+  function handleDragStart(event: DragStartEvent) {
+    setIsDragging(true);
+  }
+
   function handleDragEnd(event: DragEndEvent) {
+    setIsDragging(false);
     const { active, over } = event;
     
     if (!over) return;
@@ -250,6 +256,7 @@ export function WidgetGrid() {
       <DndContext 
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
         <SortableContext items={gridItems.map(item => item.id)}>
@@ -285,6 +292,7 @@ export function WidgetGrid() {
                         key={item.id}
                         id={item.id}
                         index={index}
+                        isDragging={isDragging}
                       />
                     );
                   }
