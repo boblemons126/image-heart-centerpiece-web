@@ -30,6 +30,12 @@ import { WidgetCustomizer } from './EditMode/WidgetCustomizer';
 import { SortableWidget } from './EditMode/SortableWidget';
 import { DropZone } from './EditMode/components/DropZone';
 import { toast } from 'sonner';
+import { SortableEmptySlot } from './EditMode/components/SortableEmptySlot';
+
+interface EmptySlot {
+  id: string;
+  type: 'empty';
+}
 
 export function WidgetGrid() {
   const { devices, loading, toggleDevice, updateDevice } = useDevices();
@@ -54,6 +60,19 @@ export function WidgetGrid() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  const getEmptySlotsCount = () => {
+    const currentWidgets = widgets.length;
+    const minSlots = 8;
+    return Math.max(minSlots - currentWidgets, 4);
+  };
+
+  const emptySlots: EmptySlot[] = Array.from({ length: getEmptySlotsCount() }).map((_, i) => ({
+    id: `empty-${i}`,
+    type: 'empty',
+  }));
+
+  const gridItems: (Widget | EmptySlot)[] = [...widgets, ...emptySlots];
 
   if (loading) {
     return (
@@ -150,7 +169,7 @@ export function WidgetGrid() {
     // Handle widget template drops
     if (active.data.current?.type === 'widget-template') {
       const template = active.data.current.template;
-      const newWidget = {
+      const newWidget: Widget = {
         id: `widget-${Date.now()}`,
         deviceId: `device-${Math.floor(Math.random() * 8) + 1}`,
         type: template.type as any,
@@ -163,33 +182,50 @@ export function WidgetGrid() {
         },
       };
       
-      addWidget(newWidget);
+      const overIndex = gridItems.findIndex(item => item.id === over.id);
+
+      if (overIndex > -1) {
+          const newGridItems = [...gridItems];
+          const overItem = newGridItems[overIndex];
+          
+          if (overItem.type === 'empty') {
+            newGridItems[overIndex] = newWidget; // Replace empty slot
+          } else {
+            newGridItems.splice(overIndex, 0, newWidget); // Insert before widget
+          }
+
+          const newWidgets = newGridItems.filter(item => item.type !== 'empty') as Widget[];
+          updateWidgets(newWidgets);
+      } else {
+          // Fallback if not dropped on any grid item
+          addWidget(newWidget);
+      }
+      
       toast.success(`${template.name} added to dashboard`, {
         description: 'Your new widget has been added successfully.',
       });
       return;
     }
 
-    // Handle widget reordering
-    if (over && active.id !== over.id) {
-      const oldIndex = widgets.findIndex((item) => item.id === active.id);
-      const newIndex = widgets.findIndex((item) => item.id === over.id);
+    // Handle reordering of existing widgets
+    if (active.id !== over.id) {
+        const oldIndex = gridItems.findIndex((item) => item.id === active.id);
+        const newIndex = gridItems.findIndex((item) => item.id === over.id);
       
-      if (oldIndex !== -1 && newIndex !== -1) {
-        updateWidgets(arrayMove(widgets, oldIndex, newIndex));
-        toast.success('Widget position updated', {
-          description: 'Your dashboard layout has been saved.',
-        });
-      }
+        if (oldIndex !== -1 && newIndex !== -1) {
+            // Prevent dragging empty slots
+            if(gridItems[oldIndex].type === 'empty') return;
+
+            const newGridItems = arrayMove(gridItems, oldIndex, newIndex);
+            const newWidgets = newGridItems.filter(item => item.type !== 'empty') as Widget[];
+            updateWidgets(newWidgets);
+
+            toast.success('Widget position updated', {
+                description: 'Your dashboard layout has been saved.',
+            });
+        }
     }
   }
-
-  // Calculate how many empty slots to show based on current grid
-  const getEmptySlots = () => {
-    const currentWidgets = widgets.length;
-    const minSlots = 8; // Minimum empty slots to show
-    return Math.max(minSlots - currentWidgets, 4);
-  };
 
   return (
     <div className="relative">
@@ -216,45 +252,44 @@ export function WidgetGrid() {
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
-        <SortableContext items={widgets.map(w => w.id)}>
+        <SortableContext items={gridItems.map(item => item.id)}>
           <DropZone id="dashboard-drop-zone" isEmpty={widgets.length === 0 && isEditMode}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-min relative">
               <AnimatePresence mode="popLayout">
-                {widgets.map((widget) => {
-                  return (
-                    <motion.div
-                      key={widget.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                      transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
-                      className={getGridSpan(widget.size)}
-                    >
-                      <SortableWidget 
+                {gridItems.map((item, index) => {
+                  if (item.type !== 'empty') {
+                    const widget = item as Widget;
+                    return (
+                      <motion.div
                         key={widget.id}
-                        widget={widget} 
-                        onSelect={handleWidgetSelect}
-                        onDelete={handleWidgetDelete}
+                        layout
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                        transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
+                        className={getGridSpan(widget.size)}
                       >
-                        {renderWidget(widget)}
-                      </SortableWidget>
-                    </motion.div>
-                  );
+                        <SortableWidget 
+                          key={widget.id}
+                          widget={widget} 
+                          onSelect={handleWidgetSelect}
+                          onDelete={handleWidgetDelete}
+                        >
+                          {renderWidget(widget)}
+                        </SortableWidget>
+                      </motion.div>
+                    );
+                  } else {
+                    return (
+                      <SortableEmptySlot
+                        key={item.id}
+                        id={item.id}
+                        index={index}
+                      />
+                    );
+                  }
                 })}
               </AnimatePresence>
-              
-              {/* Debug Drop Zones - Only show when in edit mode */}
-              {isEditMode && Array.from({ length: getEmptySlots() }).map((_, index) => (
-                <div
-                  key={`debug-drop-zone-${index}`}
-                  className="col-span-1 border-2 border-red-400 border-dashed rounded-lg bg-red-100/20 dark:bg-red-900/20 min-h-[200px] flex items-center justify-center opacity-50"
-                >
-                  <span className="text-red-600 dark:text-red-400 text-sm font-mono">
-                    Drop Zone {widgets.length + index + 1}
-                  </span>
-                </div>
-              ))}
             </div>
           </DropZone>
         </SortableContext>
