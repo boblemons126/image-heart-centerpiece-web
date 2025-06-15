@@ -11,11 +11,13 @@ import {
   Layout,
   Sparkles,
   Info,
-  GripVertical
+  GripVertical,
+  Bookmark
 } from 'lucide-react';
 import { useEditMode } from './EditModeProvider';
 import { WidgetLibrary } from './components/WidgetLibrary';
 import { EditInstructions } from './components/EditInstructions';
+import { PresetsPanel } from './components/PresetsPanel';
 import {
   Select,
   SelectContent,
@@ -31,7 +33,7 @@ interface EditModePanelProps {
 
 export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
   const { setEditMode } = useEditMode();
-  const [activeTab, setActiveTab] = useState<'widgets' | 'settings' | 'help'>('widgets');
+  const [activeTab, setActiveTab] = useState<'widgets' | 'presets' | 'settings' | 'help'>('widgets');
   const [isMinimized, setIsMinimized] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState('dark');
@@ -47,6 +49,7 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
 
   const tabs = [
     { id: 'widgets', label: 'Widgets', icon: Grid3X3 },
+    { id: 'presets', label: 'Presets', icon: Bookmark },
     { id: 'settings', label: 'Settings', icon: Settings },
     { id: 'help', label: 'Help', icon: Info },
   ];
@@ -204,14 +207,14 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 text-sm font-medium transition-all relative hover:opacity-80`}
+                  className={`flex-1 flex items-center justify-center space-x-2 py-3 px-2 text-xs font-medium transition-all relative hover:opacity-80`}
                   style={{ 
                     color: activeTab === tab.id ? 'var(--theme-primary)' : 'var(--theme-textSecondary)',
                     backgroundColor: activeTab === tab.id ? 'var(--theme-background)' : 'transparent'
                   }}
                 >
                   <Icon className="w-4 h-4" />
-                  <span>{tab.label}</span>
+                  <span className="hidden sm:inline">{tab.label}</span>
                   {activeTab === tab.id && (
                     <motion.div
                       layoutId="activeTab"
@@ -260,6 +263,10 @@ export function EditModePanel({ onSelectWidget }: EditModePanelProps) {
                   </div>
                   <WidgetLibrary onSelectWidget={onSelectWidget} />
                 </div>
+              )}
+
+              {activeTab === 'presets' && (
+                <PresetsPanel />
               )}
 
               {activeTab === 'settings' && (
