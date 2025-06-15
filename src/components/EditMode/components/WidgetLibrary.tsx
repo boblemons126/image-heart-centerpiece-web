@@ -172,7 +172,14 @@ function DraggableWidgetItem({ widget, onSelect }: { widget: WidgetTemplate; onS
   const style = transform ? {
     transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
     zIndex: 1000,
-  } : {};
+    backgroundColor: isDragging ? 'var(--theme-primary)' : 'var(--theme-background)',
+    color: isDragging ? 'white' : 'var(--theme-text)',
+    borderColor: isDragging ? 'var(--theme-primary)' : 'var(--theme-border)',
+  } : {
+    backgroundColor: 'var(--theme-background)',
+    color: 'var(--theme-text)',
+    borderColor: 'var(--theme-border)',
+  };
 
   return (
     <motion.div
@@ -183,15 +190,9 @@ function DraggableWidgetItem({ widget, onSelect }: { widget: WidgetTemplate; onS
       onClick={() => !isDragging && onSelect(widget)}
       className={`flex items-center space-x-3 p-4 rounded-lg border transition-all duration-200 cursor-grab active:cursor-grabbing ${
         isDragging 
-          ? 'opacity-70 scale-105 shadow-lg bg-blue-100 dark:bg-blue-900/50 border-blue-300 dark:border-blue-600' 
-          : 'hover:bg-gray-100 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600'
+          ? 'opacity-70 scale-105 shadow-lg' 
+          : 'hover:bg-gray-100 dark:hover:bg-gray-700'
       }`}
-      style={{
-        backgroundColor: isDragging ? 'var(--theme-primary)' : 'var(--theme-background)',
-        color: isDragging ? 'white' : 'var(--theme-text)',
-        borderColor: isDragging ? 'var(--theme-primary)' : 'var(--theme-border)',
-        ...style,
-      }}
       whileHover={{ scale: isDragging ? 1 : 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
