@@ -190,10 +190,10 @@ export function WidgetGrid() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                Edit Mode Active
+                Edit Mode Active - Debug Grid Visible
               </h3>
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                Use the panel on the right to add widgets, or drag existing widgets to rearrange them.
+                Use the panel on the right to add widgets, or drag existing widgets to rearrange them. The red grid shows drop zones.
               </p>
             </div>
             <div className="text-sm text-blue-600 dark:text-blue-400">
@@ -210,31 +210,52 @@ export function WidgetGrid() {
       >
         <SortableContext items={widgets.map(w => w.id)}>
           <DropZone id="dashboard-drop-zone" isEmpty={widgets.length === 0 && isEditMode}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-min">
-              <AnimatePresence mode="popLayout">
-                {widgets.map((widget) => {
-                  return (
-                    <motion.div
-                      key={widget.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                      transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
-                      className={getGridSpan(widget.size)}
-                    >
-                      <SortableWidget 
-                        key={widget.id}
-                        widget={widget} 
-                        onSelect={handleWidgetSelect}
-                        onDelete={handleWidgetDelete}
+            <div className="relative">
+              {/* Debug Grid Overlay */}
+              {isEditMode && (
+                <div className="absolute inset-0 pointer-events-none z-10 opacity-50">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 h-full">
+                    {Array.from({ length: 12 }).map((_, index) => (
+                      <div
+                        key={`debug-grid-${index}`}
+                        className="border-2 border-red-400 border-dashed rounded-lg bg-red-100/20 dark:bg-red-900/20 min-h-[200px] flex items-center justify-center"
                       >
-                        {renderWidget(widget)}
-                      </SortableWidget>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
+                        <span className="text-red-600 dark:text-red-400 text-sm font-mono">
+                          Grid {index + 1}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Actual Widget Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-min relative z-20">
+                <AnimatePresence mode="popLayout">
+                  {widgets.map((widget) => {
+                    return (
+                      <motion.div
+                        key={widget.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                        transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
+                        className={getGridSpan(widget.size)}
+                      >
+                        <SortableWidget 
+                          key={widget.id}
+                          widget={widget} 
+                          onSelect={handleWidgetSelect}
+                          onDelete={handleWidgetDelete}
+                        >
+                          {renderWidget(widget)}
+                        </SortableWidget>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </div>
             </div>
           </DropZone>
         </SortableContext>
